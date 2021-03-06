@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>TriviAdmin</title>
+
+        <!-- update the version number as needed -->
+        <script defer src="/__/firebase/8.2.9/firebase-app.js"></script>
+        <!-- include only the Firebase features as you need -->
+        <script defer src="/__/firebase/8.2.9/firebase-auth.js"></script>
+        <script defer src="/__/firebase/8.2.9/firebase-firestore.js"></script>
+        <script defer src="/__/firebase/8.2.9/firebase-functions.js"></script>
+        <script defer src="/__/firebase/8.2.9/firebase-storage.js"></script>
+        <script defer src="/__/firebase/8.2.9/firebase-analytics.js"></script>
+        <script
+            defer
+            src="/__/firebase/8.2.9/firebase-remote-config.js"
+        ></script>
+        <script defer src="/__/firebase/8.2.9/firebase-performance.js"></script>
+        <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+        <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    </head>
+    <body>
+        <button id="login-button" onclick="googleLogin()">
+            Login with Google
+        </button>
+        <!-- <input type="file" onchange="uploadFile(this.files)" /> -->
+        <!-- <img id="imgUpload" src="" width="100vw" /> -->
+        <script src="app.js"></script>
+    </body>
+</html>
