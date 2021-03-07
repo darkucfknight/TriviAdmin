@@ -1,0 +1,332 @@
+/* || BODY */
+body {
+    /* position: fixed; */
+    height: 100vh;
+    background-color: black;
+}
+.main-content {
+    height: inherit;
+    display: flex;
+    padding: 20px;
+    padding-top: 4.75rem;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* || NAVBAR */
+.top-nav {
+    position: fixed;
+    width: 100%;
+    height: 4rem;
+    z-index: 1000;
+}
+#sign-in-button {
+    float: right;
+    font-size: 1.95rem;
+    color: white;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+    background-size: cover;
+}
+#sign-in-button:hover {
+    color: #5573f3;
+}
+#profile-icon {
+    font-size: inherit;
+    display: flex;
+}
+
+/* || SIDEBAR */
+.sidebar {
+    position: fixed;
+    z-index: 999;
+    align-items: flex-start;
+}
+.sidebar > ul {
+    margin: 0rem 0rem;
+}
+.material-icons {
+    position: relative;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 2rem;
+}
+
+nav.sidebar ul,
+nav.sidebar li {
+    outline: 0;
+    margin: 0;
+    padding: 0;
+}
+.sidebar li:hover > a,
+nav.sidebar li.active > a {
+    color: #fff;
+    background-color: #5573f3;
+}
+nav.sidebar li.selected > a {
+    color: #fff;
+}
+
+nav.sidebar li.selected .material-icons {
+    color: #5573f3;
+}
+
+nav.sidebar li.selected:hover .material-icons {
+    color: #fff;
+}
+
+.sidebar .nav-text,
+.sidebar li > a {
+    font-family: 'Roboto', sans-serif;
+}
+
+.sidebar li > a {
+    border-collapse: collapse;
+    border-spacing: 0;
+    color: white;
+    font-size: 1.03rem;
+    text-decoration: none;
+}
+
+@media (min-width: 35.1em) {
+    .main-content {
+        margin-left: 5rem;
+    }
+
+    .sidebar .material-icons {
+        display: table-cell;
+        width: 5rem;
+        height: 5rem;
+    }
+
+    .sidebar:hover,
+    nav.sidebar.expanded {
+        width: 15em;
+        overflow: visible;
+    }
+
+    .sidebar {
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        left: 0;
+        padding-top: 3.5em;
+        width: 5rem;
+        overflow: hidden;
+        -webkit-transition: width 0.05s linear;
+        transition: width 0.05s linear;
+        -webkit-transform: translateZ(0) scale(1, 1);
+    }
+
+    .sidebar li {
+        position: relative;
+        display: block;
+        width: 18em;
+    }
+    .sidebar li > a {
+        position: relative;
+        display: table;
+        -webkit-transform: translateZ(0) scale(1, 1);
+        -webkit-transition: all 0.1s linear;
+        transition: all 0.1s linear;
+    }
+
+    .sidebar .nav-text {
+        position: relative;
+        display: table-cell;
+        vertical-align: middle;
+        width: 10rem;
+    }
+}
+
+@media (max-width: 35em) {
+    .main-content {
+        padding-bottom: 5.75rem;
+    }
+
+    .sidebar {
+        position: fixed;
+        margin: 0;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 5rem;
+    }
+
+    .sidebar ul {
+        display: flex;
+        width: 100%;
+        justify-content: space-around;
+    }
+
+    .sidebar li {
+        float: left;
+        width: 25%;
+        list-style-type: none;
+        text-align: center;
+    }
+
+    .sidebar a {
+        display: block;
+        padding: 5px;
+        height: 74px;
+    }
+
+    .sidebar i,
+    .sidebar span {
+        display: block;
+    }
+
+    .sidebar span {
+        font-size: 14px;
+    }
+}
+
+/* || Filter bar */
+#filter-bar {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+#filter-bar > .filter-group {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+#filter-bar > .filter-group > .filter-label {
+    color: white;
+    font-size: 0.75em;
+}
+
+/* || Quick Question Count Bar */
+#quick-question-count-bar {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    font-size: 1.25em;
+}
+#quick-question-count-bar > .insufficient {
+    color: #f35353;
+}
+
+/* || TOGGLE */
+.switch {
+    position: relative;
+    display: flex;
+    width: 60px;
+    height: 100%;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    width: 100%;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: transparent;
+    border: 1px solid #5573f3;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+    flex-direction: column;
+    justify-content: center;
+    display: flex;
+    padding: 5%;
+}
+
+.slider:before {
+    display: block;
+    content: '';
+    height: 26px;
+    width: 26px;
+    background-color: #5573f3;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+input:checked + .slider {
+    background-color: #5573f3;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #5573f3;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+    background-color: white;
+}
+
+/* || BOOTSTRAP OVERRIDES */
+.btn {
+    border-radius: 0;
+}
+.btn-outline-primary {
+    color: #5573f3;
+    border-color: #5573f3;
+}
+.btn-outline-primary:hover {
+    color: white;
+    border-color: #5573f3;
+    background-color: #5573f3;
+}
+.btn-outline-primary:active {
+    color: white;
+    border-color: #5573f3;
+    background-color: #5573f3;
+}
+.btn-check:checked + .btn-outline-primary {
+    color: white;
+    border-color: #5573f3;
+    background-color: #5573f3;
+}
+.btn-check:active + .btn-outline-primary:focus,
+.btn-check:checked + .btn-outline-primary:focus,
+.btn-outline-primary.active:focus,
+.btn-outline-primary.dropdown-toggle.show:focus,
+.btn-outline-primary:active:focus {
+    box-shadow: none;
+}
+.btn-check:active + .btn-outline-primary,
+.btn-check:checked + .btn-outline-primary,
+.btn-outline-primary.active,
+.btn-outline-primary.dropdown-toggle.show,
+.btn-outline-primary:active {
+    box-shadow: none;
+}
+.btn-check:focus + .btn-outline-primary,
+.btn-outline-primary:focus {
+    box-shadow: none;
+}
+.btn-outline-primary.dropdown-toggle.show {
+    color: #5573f3;
+    background-color: transparent;
+}
+.dropdown-menu {
+    border-radius: 0;
+    background-color: black;
+    border: 1px solid #5573f3;
+    padding: 0;
+}
+.dropdown-item {
+    color: #5573f3;
+    border: 1px solid #5573f3;
+    cursor: pointer;
+}
+.dropdown-item:focus,
+.dropdown-item:hover {
+    color: white;
+    background-color: #5573f3;
+}

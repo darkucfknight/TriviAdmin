@@ -18,18 +18,176 @@
             src="/__/firebase/8.2.9/firebase-remote-config.js"
         ></script>
         <script defer src="/__/firebase/8.2.9/firebase-performance.js"></script>
-        <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
         <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+        <link
+            href="https://fonts.googleapis.com/icon?family=Material+Icons"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+            crossorigin="anonymous"
+        />
+        <link rel="stylesheet" type="text/css" href="app.css" />
     </head>
     <body>
-        <button id="login-button" onclick="googleLogin()">
-            Login with Google
-        </button>
+        <!-- || Logout Modal -->
+        <div
+            class="modal fade"
+            id="sign-out-confirm-modal"
+            tabindex="-1"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            Confirm
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">Sign out?</div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            id="confirm-sign-out"
+                            type="button"
+                            class="btn btn-danger"
+                        >
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- || Top Navbar -->
+        <nav class="top-nav navbar navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <img
+                        src="LOGO.png"
+                        alt=""
+                        width="30"
+                        height="30"
+                        class="d-inline-block align-top"
+                    />
+                    TriviAdmin
+                </a>
+                <div
+                    id="sign-in-button"
+                    data-bs-target="#sign-out-confirm-modal"
+                >
+                    <span id="profile-icon" class="material-icons"
+                        >account_circle</span
+                    >
+                </div>
+            </div>
+        </nav>
+        <!-- Sidebar -->
+        <nav class="sidebar navbar navbar-dark bg-dark">
+            <ul>
+                <li class="selected">
+                    <a href="#">
+                        <i class="material-icons">emoji_events</i>
+                        <span class="nav-text"> Host </span>
+                    </a>
+                </li>
+                <li class="has-subnav">
+                    <a href="#">
+                        <i class="material-icons">mode</i>
+                        <span class="nav-text"> Plan </span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="main-content">
+            <div id="filter-bar">
+                <!-- Master Category List -->
+                <div class="filter-group">
+                    <label for="master-cat-select" class="filter-label"
+                        >master category</label
+                    >
+                    <div
+                        id="master-cat-select"
+                        class="btn-group"
+                        role="group"
+                        aria-label="Basic outlined example"
+                    ></div>
+                    <input
+                        type="radio"
+                        class="btn-check"
+                        name="btnradio"
+                        id="master-cat-button-template"
+                        autocomplete="off"
+                        style="display: none"
+                    />
+                    <label
+                        id="master-cat-button-template-label"
+                        class="btn btn-outline-primary master-cat-list-item"
+                        for="master-cat-button-template"
+                        style="display: none"
+                    ></label>
+                </div>
+                <!-- Used toggle -->
+                <div class="filter-group">
+                    <label for="used-toggle" class="filter-label">used</label>
+                    <label class="switch">
+                        <input id="used-toggle" type="checkbox" />
+                        <span id="used-toggle-slider" class="slider"></span>
+                    </label>
+                </div>
+                <!-- Category dropdown select -->
+                <div class="filter-group">
+                    <label for="category-select-button" class="filter-label"
+                        >category</label
+                    >
+                    <div class="dropdown">
+                        <button
+                            class="btn btn-outline-primary dropdown-toggle"
+                            type="button"
+                            id="category-select-button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
+                            Select Category
+                        </button>
+                        <ul
+                            id="category-list"
+                            class="dropdown-menu"
+                            aria-labelledby="category-select-button"
+                        ></ul>
+                        <li
+                            id="category-list-item-template"
+                            class="dropdown-item category-list-item"
+                            style="display: none"
+                        ></li>
+                    </div>
+                </div>
+            </div>
+            <div id="question-data"></div>
+            <div id="quick-question-count-bar"></div>
+        </div>
+
         <!-- <input type="file" onchange="uploadFile(this.files)" /> -->
         <!-- <img id="imgUpload" src="" width="100vw" /> -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+            crossorigin="anonymous"
+        ></script>
         <script src="app.js"></script>
     </body>
 </html>
