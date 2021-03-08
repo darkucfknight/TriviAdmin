@@ -124,12 +124,12 @@
                         id="master-cat-select"
                         class="btn-group"
                         role="group"
-                        aria-label="Basic outlined example"
                     ></div>
+                    <!-- TODO per bootstrap docs, input should be inside label tag -->
                     <input
                         type="radio"
                         class="btn-check"
-                        name="btnradio"
+                        name="master-cat"
                         id="master-cat-button-template"
                         autocomplete="off"
                         style="display: none"
@@ -175,6 +175,28 @@
                             style="display: none"
                         ></li>
                     </div>
+                </div>
+                <!-- Point value List -->
+                <div class="filter-group">
+                    <label for="point-select" class="filter-label"
+                        >point value</label
+                    >
+                    <div id="point-select" class="btn-group" role="group"></div>
+                    <!-- TODO per bootstrap docs, input should be inside label tag -->
+                    <input
+                        type="radio"
+                        class="btn-check"
+                        name="point-val"
+                        id="point-button-template"
+                        autocomplete="off"
+                        style="display: none"
+                    />
+                    <label
+                        id="point-button-template-label"
+                        class="btn btn-outline-primary point-list-item"
+                        for="point-button-template"
+                        style="display: none"
+                    ></label>
                 </div>
             </div>
             <div id="question-data"></div>

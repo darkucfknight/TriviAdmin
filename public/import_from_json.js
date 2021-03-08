@@ -1,5 +1,5 @@
-function readOldData(file_name) {
-    readTextFile(file_name, function (text) {
+function readOldData() {
+    readTextFile('tortuga-trivia-game-export.json', function (text) {
         var data = JSON.parse(text);
         Object.entries(data).forEach(([master_name, master]) => {
             // ADD MASTER CATEGORIES
@@ -59,7 +59,9 @@ function readOldData(file_name) {
                                                                     master_name,
                                                                     newMasterCategoy.id,
                                                                     newCategory.id,
-                                                                    sub_round_num,
+                                                                    round_num +
+                                                                        '.' +
+                                                                        sub_round_num,
                                                                     sub_round
                                                                 );
                                                             }
@@ -76,7 +78,7 @@ function readOldData(file_name) {
         });
     });
 }
-
+let totalMadeCount = 0;
 function addQuestions(
     master_cat_name,
     master_cat_id,
@@ -85,23 +87,30 @@ function addQuestions(
     questions
 ) {
     console.log('Adding questions...');
+    console.log(master_cat_name + ' : ' + points);
     Object.entries(questions).forEach(([question_id, question]) => {
-        questionRef.add({
-            master_category_id: db.doc('master_categories/' + master_cat_id),
-            master_category: master_cat_name,
-            category_id: db.doc('categories/' + category_id),
-            category: question.Category,
-            points: points,
-            question: question.Question,
-            answer: question.Answer,
-            multiple_choice:
-                question.Multiple_Choice == undefined
-                    ? ''
-                    : question.Multiple_Choice,
-            explanation: question.Explanation,
-            source: question.Source,
-            used: question.Used,
-        });
+        questionRef
+            .add({
+                master_category_id: db.doc(
+                    'master_categories/' + master_cat_id
+                ),
+                master_category: master_cat_name,
+                category_id: db.doc('categories/' + category_id),
+                category: question.Category,
+                points: parseFloat(points),
+                question: question.Question,
+                answer: question.Answer,
+                multiple_choice:
+                    question.Multiple_Choice == undefined
+                        ? ''
+                        : question.Multiple_Choice,
+                explanation: question.Explanation,
+                source: question.Source,
+                used: question.Used,
+            })
+            .then((qRetVal) => {
+                console.log('still loading...');
+            });
     });
 }
 

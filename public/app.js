@@ -41,6 +41,12 @@ document.addEventListener('click', function (event) {
     // MasterCat Select
     if (event.target.matches('.master-cat-list-item')) {
         loadCategories(event.target.id);
+        masterCatRef
+            .doc(event.target.id)
+            .get()
+            .then((masterCat) => {
+                showPointValues(masterCat.data().point_values);
+            });
     }
 
     // Used Toggle
@@ -68,6 +74,11 @@ document.addEventListener('click', function (event) {
             event.target.id,
             document.getElementById('used-toggle').checked
         );
+    }
+
+    // Point Val Select
+    if (event.target.matches('.point-list-item')) {
+        loadQuestion();
     }
 });
 
@@ -161,10 +172,36 @@ function loadMasterCats() {
 
             if (first) {
                 inputClone.setAttribute('checked', true);
+                showPointValues(doc.data().point_values);
                 loadCategories(doc.id);
                 first = false;
             }
         });
+    });
+}
+
+function showPointValues(pointValues) {
+    const pointList = document.getElementById('point-select');
+    pointList.innerHTML = '';
+    const pointButtonTemplate = document.getElementById(
+        'point-button-template'
+    );
+    const pointButtonTemplateLabel = document.getElementById(
+        'point-button-template-label'
+    );
+
+    pointValues.forEach(function (pointVal) {
+        let btnClone = pointButtonTemplate.cloneNode(true);
+        let btnLabelClone = pointButtonTemplateLabel.cloneNode(true);
+        btnClone.id = 'radio_' + pointVal;
+        btnLabelClone.id = pointVal;
+        btnLabelClone.innerHTML = pointVal;
+        btnLabelClone.setAttribute('for', 'radio_' + pointVal);
+
+        btnClone.style.display = 'block';
+        btnLabelClone.style.display = 'block';
+        pointList.appendChild(btnClone);
+        pointList.appendChild(btnLabelClone);
     });
 }
 
@@ -202,7 +239,6 @@ function getPointCounts(catID, used) {
         .where('category_id', '==', catRef.doc(catID))
         .where('used', '==', used);
     countQuery.get().then((questions) => {
-        console.log('total questions: ' + questions.size);
         let pointsTupleCount = {};
         questions.forEach((qDoc) => {
             if (pointsTupleCount[qDoc.data().points] == undefined) {
@@ -211,7 +247,6 @@ function getPointCounts(catID, used) {
                 pointsTupleCount[qDoc.data().points] += 1;
             }
         });
-        console.log(pointsTupleCount);
 
         const qCountList = document.getElementById('quick-question-count-bar');
         qCountList.innerHTML = '';
@@ -230,6 +265,9 @@ function getPointCounts(catID, used) {
     });
 }
 
+function loadQuestion() {
+    console.log('TODO load question...');
+}
 // function uploadFile(files) {
 //     const storageRef = firebase.storage().ref();
 //     const horseRef = storageRef.child('horse.jpg');
