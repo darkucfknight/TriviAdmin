@@ -1,4 +1,5 @@
 let CURRENT_USER_ID = null;
+let CURRENT_QUESTION_ID = null;
 let GOOGLE_TOKEN = null;
 let db = null;
 let masterCatRef = null;
@@ -40,6 +41,7 @@ document.addEventListener('click', function (event) {
 
     // MasterCat Select
     if (event.target.matches('.master-cat-list-item')) {
+        clearQuestion();
         loadCategories(event.target.id);
         masterCatRef
             .doc(event.target.id)
@@ -51,6 +53,7 @@ document.addEventListener('click', function (event) {
 
     // Used Toggle
     if (event.target.matches('#used-toggle-slider')) {
+        clearQuestion();
         let currentCatID = document
             .getElementById('category-select-button')
             .getAttribute('data-cat-id');
@@ -65,6 +68,7 @@ document.addEventListener('click', function (event) {
 
     // Category Select
     if (event.target.matches('.category-list-item')) {
+        clearQuestion();
         document.getElementById('category-select-button').innerHTML =
             event.target.innerHTML;
         document
@@ -74,11 +78,20 @@ document.addEventListener('click', function (event) {
             event.target.id,
             document.getElementById('used-toggle').checked
         );
+        loadQuestion(null);
     }
 
     // Point Val Select
     if (event.target.matches('.point-list-item')) {
-        loadQuestion();
+        clearQuestion();
+        document
+            .getElementById('quick-question-count-bar')
+            .getElementsByClassName('active')[0]
+            ?.classList.remove('active');
+        document
+            .getElementById('point-count-' + event.target.id)
+            ?.classList.add('active');
+        loadQuestion(event.target.id);
     }
 });
 
@@ -161,6 +174,7 @@ function loadMasterCats() {
             let inputClone = inputTemplate.cloneNode(true);
             let inputLabelClone = inputTemplateLabel.cloneNode(true);
             inputClone.id = 'radio_' + doc.id;
+            inputClone.value = doc.id;
             inputLabelClone.id = doc.id;
             inputLabelClone.innerHTML = doc.data().name;
             inputLabelClone.setAttribute('for', 'radio_' + doc.id);
@@ -181,6 +195,7 @@ function loadMasterCats() {
 }
 
 function showPointValues(pointValues) {
+    pointValues.sort();
     const pointList = document.getElementById('point-select');
     pointList.innerHTML = '';
     const pointButtonTemplate = document.getElementById(
@@ -194,6 +209,7 @@ function showPointValues(pointValues) {
         let btnClone = pointButtonTemplate.cloneNode(true);
         let btnLabelClone = pointButtonTemplateLabel.cloneNode(true);
         btnClone.id = 'radio_' + pointVal;
+        btnClone.value = pointVal;
         btnLabelClone.id = pointVal;
         btnLabelClone.innerHTML = pointVal;
         btnLabelClone.setAttribute('for', 'radio_' + pointVal);
@@ -250,8 +266,14 @@ function getPointCounts(catID, used) {
 
         const qCountList = document.getElementById('quick-question-count-bar');
         qCountList.innerHTML = '';
+        let pointFilterVal = document.querySelector(
+            'input[name="point-val"]:checked'
+        )?.value;
+
         Object.entries(pointsTupleCount).forEach(([pointVal, qCount]) => {
             let thisQCount = document.createElement('div');
+            thisQCount.classList.add('q-count');
+            thisQCount.id = 'point-count-' + pointVal;
             thisQCount.innerHTML = qCount;
 
             if (pointVal == '2' && qCount < 15) {
@@ -260,13 +282,137 @@ function getPointCounts(catID, used) {
             if (qCount < 5) {
                 thisQCount.classList.add('insufficient');
             }
+
+            if (pointFilterVal && pointFilterVal == pointVal) {
+                thisQCount.classList.add('active');
+            }
             qCountList.appendChild(thisQCount);
         });
+        sortByID(qCountList);
     });
 }
 
-function loadQuestion() {
-    console.log('TODO load question...');
+function loadQuestion(pointVal = null) {
+    let masterCatID = document.querySelector('input[name="master-cat"]:checked')
+        ?.value;
+    let catID = document
+        .getElementById('category-select-button')
+        .getAttribute('data-cat-id');
+    let used = document.getElementById('used-toggle').checked;
+    if (!pointVal) {
+        pointVal = document.querySelector('input[name="point-val"]:checked')
+            ?.value;
+    }
+
+    if (masterCatID && catID != 'false' && pointVal) {
+        const randKey = questionRef.doc().id;
+
+        let questionQuery = questionRef
+            .where('master_category_id', '==', masterCatRef.doc(masterCatID))
+            .where('category_id', '==', catRef.doc(catID))
+            .where('points', '==', parseFloat(pointVal))
+            .where('used', '==', used)
+            .where(
+                firebase.firestore.FieldPath.documentId(),
+                '!=',
+                CURRENT_QUESTION_ID ? CURRENT_QUESTION_ID : randKey
+            );
+
+        // Randomize selection be generating a random key and getting the document with the key that matches most closely
+        questionQuery
+            .where(firebase.firestore.FieldPath.documentId(), '>=', randKey)
+            .limit(1)
+            .get()
+            .then((snapshot) => {
+                if (snapshot.size > 0) {
+                    snapshot.forEach((doc) => {
+                        CURRENT_QUESTION_ID = doc.id;
+                        showQuestion(doc.data());
+                    });
+                } else {
+                    questionQuery
+                        .where(
+                            firebase.firestore.FieldPath.documentId(),
+                            '<',
+                            randKey
+                        )
+                        .limit(1)
+                        .get()
+                        .then((snapshot) => {
+                            if (snapshot.size == 0) {
+                                if (CURRENT_QUESTION_ID) {
+                                    CURRENT_QUESTION_ID = null;
+                                    showSnackbar(
+                                        'Only one question matched your selection.'
+                                    );
+                                    loadQuestion();
+                                } else {
+                                    showSnackbar(
+                                        'Zero questions matched your selection.'
+                                    );
+                                }
+                            }
+                            snapshot.forEach((doc) => {
+                                CURRENT_QUESTION_ID = doc.id;
+                                showQuestion(doc.data());
+                            });
+                        })
+                        .catch((err) => {
+                            console.log('Error getting documents', err);
+                        });
+                }
+            });
+    }
+}
+
+function showQuestion(question) {
+    document.getElementById('question-text').innerHTML = question?.question;
+    document.getElementById('multi-choice-text').innerHTML =
+        question?.multiple_choice;
+    document.getElementById('answer-text').innerHTML = question?.answer;
+    document.getElementById('source-text').innerHTML = question?.source;
+    document.getElementById('explanation-text').innerHTML =
+        question?.explanation;
+    document.getElementById('question-loader').style.display = 'none';
+}
+
+function clearQuestion() {
+    document.getElementById('question-text').innerHTML = '';
+    document.getElementById('multi-choice-text').innerHTML = '';
+    document.getElementById('answer-text').innerHTML = '';
+    document.getElementById('source-text').innerHTML = '';
+    document.getElementById('explanation-text').innerHTML = '';
+}
+
+function sortByID(unsortedList) {
+    let createdqCountListItems = unsortedList.childNodes;
+    let unsortedItems = [];
+    for (var i in createdqCountListItems) {
+        if (createdqCountListItems[i].nodeType == 1) {
+            // get rid of the whitespace text nodes
+            unsortedItems.push(createdqCountListItems[i]);
+        }
+    }
+    unsortedItems.sort(function (a, b) {
+        return a.id == b.id ? 0 : a.id > b.id ? 1 : -1;
+    });
+    for (i = 0; i < unsortedItems.length; ++i) {
+        unsortedList.appendChild(unsortedItems[i]);
+    }
+}
+
+function showSnackbar(text) {
+    // Get the snackbar DIV
+    const snack = document.getElementById('snackbar');
+    snack.innerHTML = text;
+
+    // Add the "show" class to DIV
+    snack.className = 'show';
+
+    // After 3 seconds, remove the show class from DIV
+    setTimeout(function () {
+        snack.className = snack.className.replace('show', '');
+    }, 3000);
 }
 // function uploadFile(files) {
 //     const storageRef = firebase.storage().ref();

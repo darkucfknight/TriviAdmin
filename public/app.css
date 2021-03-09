@@ -7,10 +7,19 @@ body {
 .main-content {
     height: inherit;
     display: flex;
-    padding: 20px;
     padding-top: 4.75rem;
+    padding-bottom: 0.5rem;
     flex-direction: column;
     justify-content: space-between;
+}
+.main-content > div {
+    padding-left: 2%;
+    padding-right: 2%;
+}
+.little-label {
+    color: white;
+    font-size: 0.75em;
+    text-transform: lowercase;
 }
 
 /* || NAVBAR */
@@ -39,13 +48,13 @@ body {
     display: flex;
 }
 
-/* || SIDEBAR */
-.sidebar {
+/* || Bottom bar (mobile) */
+.bottombar {
     position: fixed;
     z-index: 999;
     align-items: flex-start;
 }
-.sidebar > ul {
+.bottombar > ul {
     margin: 0rem 0rem;
 }
 .material-icons {
@@ -55,35 +64,35 @@ body {
     font-size: 2rem;
 }
 
-nav.sidebar ul,
-nav.sidebar li {
+nav.bottombar ul,
+nav.bottombar li {
     outline: 0;
     margin: 0;
     padding: 0;
 }
-.sidebar li:hover > a,
-nav.sidebar li.active > a {
+.bottombar li:hover > a,
+nav.bottombar li.active > a {
     color: #fff;
     background-color: #5573f3;
 }
-nav.sidebar li.selected > a {
+nav.bottombar li.selected > a {
     color: #fff;
 }
 
-nav.sidebar li.selected .material-icons {
+nav.bottombar li.selected .material-icons {
     color: #5573f3;
 }
 
-nav.sidebar li.selected:hover .material-icons {
+nav.bottombar li.selected:hover .material-icons {
     color: #fff;
 }
 
-.sidebar .nav-text,
-.sidebar li > a {
+.bottombar .nav-text,
+.bottombar li > a {
     font-family: 'Roboto', sans-serif;
 }
 
-.sidebar li > a {
+.bottombar li > a {
     border-collapse: collapse;
     border-spacing: 0;
     color: white;
@@ -92,62 +101,18 @@ nav.sidebar li.selected:hover .material-icons {
 }
 
 @media (min-width: 35.1em) {
-    .main-content {
-        margin-left: 5rem;
-    }
-
-    .sidebar .material-icons {
-        display: table-cell;
-        width: 5rem;
-        height: 5rem;
-    }
-
-    .sidebar:hover,
-    nav.sidebar.expanded {
-        width: 15em;
-        overflow: visible;
-    }
-
-    .sidebar {
-        top: 0;
-        bottom: 0;
-        height: 100%;
-        left: 0;
-        padding-top: 3.5em;
-        width: 5rem;
-        overflow: hidden;
-        -webkit-transition: width 0.05s linear;
-        transition: width 0.05s linear;
-        -webkit-transform: translateZ(0) scale(1, 1);
-    }
-
-    .sidebar li {
-        position: relative;
-        display: block;
-        width: 18em;
-    }
-    .sidebar li > a {
-        position: relative;
-        display: table;
-        -webkit-transform: translateZ(0) scale(1, 1);
-        -webkit-transition: all 0.1s linear;
-        transition: all 0.1s linear;
-    }
-
-    .sidebar .nav-text {
-        position: relative;
-        display: table-cell;
-        vertical-align: middle;
-        width: 10rem;
+    .bottombar {
+        display: none;
     }
 }
 
+/* mobile */
 @media (max-width: 35em) {
     .main-content {
         padding-bottom: 5.75rem;
     }
 
-    .sidebar {
+    .bottombar {
         position: fixed;
         margin: 0;
         left: 0;
@@ -156,31 +121,31 @@ nav.sidebar li.selected:hover .material-icons {
         height: 5rem;
     }
 
-    .sidebar ul {
+    .bottombar ul {
         display: flex;
         width: 100%;
         justify-content: space-around;
     }
 
-    .sidebar li {
+    .bottombar li {
         float: left;
         width: 25%;
         list-style-type: none;
         text-align: center;
     }
 
-    .sidebar a {
+    .bottombar a {
         display: block;
         padding: 5px;
         height: 74px;
     }
 
-    .sidebar i,
-    .sidebar span {
+    .bottombar i,
+    .bottombar span {
         display: block;
     }
 
-    .sidebar span {
+    .bottombar span {
         font-size: 14px;
     }
 }
@@ -190,16 +155,14 @@ nav.sidebar li.selected:hover .material-icons {
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
+    border-bottom: 1px solid white;
+    padding-bottom: 0.5rem;
 }
 #filter-bar > .filter-group {
     display: flex;
     flex-direction: column;
     margin-left: 10px;
     margin-right: 10px;
-}
-#filter-bar > .filter-group > .filter-label {
-    color: white;
-    font-size: 0.75em;
 }
 
 /* || Quick Question Count Bar */
@@ -208,9 +171,37 @@ nav.sidebar li.selected:hover .material-icons {
     justify-content: space-around;
     flex-wrap: wrap;
     font-size: 1.25em;
+    border-top: 1px solid white;
+    padding-top: 0.5rem;
 }
 #quick-question-count-bar > .insufficient {
     color: #f35353;
+}
+#quick-question-count-bar > .active {
+    border-bottom: 2px solid;
+}
+
+/* || Question section */
+#question-data-section {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    overflow-y: scroll;
+}
+#question-data-section::-webkit-scrollbar {
+    width: 0; /* Remove scrollbar space */
+    background: transparent; /* Optional: just make scrollbar invisible */
+}
+/* Optional: show position indicator in red */
+#question-data-section::-webkit-scrollbar-thumb {
+    background: #ff0000;
+}
+#question-data-section .little-label {
+    color: gray;
+}
+.question-data {
+    color: white;
+    font-size: 100%;
 }
 
 /* || TOGGLE */
@@ -329,4 +320,132 @@ input:checked + .slider:before {
 .dropdown-item:hover {
     color: white;
     background-color: #5573f3;
+}
+
+/* || Pure CSS Loader */
+.lds-ellipsis {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 100%;
+}
+.lds-ellipsis div {
+    position: absolute;
+    top: 33px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #5573f3;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+    left: 8px;
+    animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+    left: 8px;
+    animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+    left: 32px;
+    animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+    left: 56px;
+    animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+@keyframes lds-ellipsis3 {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0);
+    }
+}
+@keyframes lds-ellipsis2 {
+    0% {
+        transform: translate(0, 0);
+    }
+    100% {
+        transform: translate(24px, 0);
+    }
+}
+
+/* || W3Schools Snackbar */
+/* The snackbar - position it at the bottom and in the middle of the screen */
+#snackbar {
+    visibility: hidden; /* Hidden by default. Visible on click */
+    min-width: 250px; /* Set a default minimum width */
+    margin-left: -125px; /* Divide value of min-width by 2 */
+    background-color: #333; /* Black background color */
+    color: #fff; /* White text color */
+    text-align: center; /* Centered text */
+    border-radius: 2px; /* Rounded borders */
+    padding: 16px; /* Padding */
+    position: fixed; /* Sit on top of the screen */
+    left: 50%; /* Center the snackbar */
+    bottom: 30px; /* 30px from the bottom */
+    z-index: 1000;
+}
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+#snackbar.show {
+    visibility: visible; /* Show the snackbar */
+    /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+    However, delay the fade out process for 2.5 seconds */
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@keyframes fadein {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes fadeout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
 }
