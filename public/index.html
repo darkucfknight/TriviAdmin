@@ -86,14 +86,32 @@
                     />
                     TriviAdmin
                 </a>
-
-                <div
-                    id="sign-in-button"
-                    data-bs-target="#sign-out-confirm-modal"
-                >
-                    <span id="profile-icon" class="material-icons"
-                        >account_circle</span
+                <div class="d-flex">
+                    <ul
+                        id="signed-in-navbar"
+                        class="navbar-nav"
+                        style="display: none"
                     >
+                        <li class="nav-item">
+                            <a
+                                class="nav-link active"
+                                aria-current="page"
+                                href="#"
+                                >Host</a
+                            >
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Plan</a>
+                        </li>
+                    </ul>
+                    <div
+                        id="sign-in-button"
+                        data-bs-target="#sign-out-confirm-modal"
+                    >
+                        <span id="profile-icon" class="material-icons"
+                            >account_circle</span
+                        >
+                    </div>
                 </div>
             </div>
         </nav>
@@ -140,6 +158,29 @@
                         for="master-cat-button-template"
                         style="display: none"
                     ></label>
+                    <div
+                        id="public-mastercat-dropdown-template"
+                        class="dropdown public-mastercat-dropdown"
+                        style="display: none"
+                    >
+                        <button
+                            class="btn btn-outline-primary dropdown-toggle"
+                            id="mastercat-select-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
+                            Public
+                        </button>
+                        <ul
+                            class="dropdown-menu"
+                            aria-labelledby="public-mastercat-button"
+                        ></ul>
+                        <li
+                            class="dropdown-item mastercat-list-item"
+                            style="display: none"
+                        ></li>
+                    </div>
                 </div>
                 <!-- Used toggle -->
                 <div class="filter-group">

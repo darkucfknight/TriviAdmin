@@ -5,6 +5,7 @@ let db = null;
 let masterCatRef = null;
 let catRef = null;
 let questionRef = null;
+let userRef = null;
 
 const SIGN_OUT_MODAL = new bootstrap.Modal(
     document.getElementById('sign-out-confirm-modal')
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     masterCatRef = db.collection('master_categories');
     catRef = db.collection('categories');
     questionRef = db.collection('questions');
+    userRef = db.collection('users');
 
     loadMasterCats();
 });
@@ -42,7 +44,44 @@ document.addEventListener('click', function (event) {
     // MasterCat Select
     if (event.target.matches('.master-cat-list-item')) {
         clearQuestion();
+        let masterCatSelectButton = document.getElementById(
+            'mastercat-select-button'
+        );
+        masterCatSelectButton.classList.remove('active');
+        masterCatSelectButton.innerHTML = 'Public';
+        masterCatSelectButton.setAttribute('data-mastercat-id', '');
+
         loadCategories(event.target.id);
+
+        masterCatRef
+            .doc(event.target.id)
+            .get()
+            .then((masterCat) => {
+                showPointValues(masterCat.data().point_values);
+            });
+    }
+
+    if (event.target.matches('.mastercat-list-item')) {
+        clearQuestion();
+
+        let mastercatSelectButton = document.getElementById(
+            'mastercat-select-button'
+        );
+        mastercatSelectButton.innerHTML = event.target.innerHTML;
+        mastercatSelectButton.setAttribute(
+            'data-mastercat-id',
+            event.target.id
+        );
+        mastercatSelectButton.classList.add('active');
+
+        if (document.querySelector('input[name="master-cat"]:checked')) {
+            document.querySelector(
+                'input[name="master-cat"]:checked'
+            ).checked = false;
+        }
+
+        loadCategories(event.target.id);
+
         masterCatRef
             .doc(event.target.id)
             .get()
@@ -113,7 +152,10 @@ function googleLogin() {
             const user = result.user;
             CURRENT_USER_ID = user.uid;
             GOOGLE_TOKEN = result.credential.accessToken;
-            const userRef = db.collection('users');
+
+            loadMasterCats();
+
+            document.getElementById('signed-in-navbar').style.display = 'flex';
 
             userRef.doc(user.uid).set({
                 display_name: user.displayName,
@@ -136,7 +178,13 @@ function googleLogout() {
         .then(
             function () {
                 console.log('Signout Succesfull');
+                CURRENT_USER_ID = null;
                 GOOGLE_TOKEN = null;
+
+                loadMasterCats();
+
+                document.getElementById('signed-in-navbar').style.display =
+                    'none';
                 document.getElementById('profile-icon').style.display = 'flex';
                 document.getElementById(
                     'sign-in-button'
@@ -148,11 +196,11 @@ function googleLogout() {
         );
 }
 
-function updateQuestion(e) {
-    const db = firebase.firestore();
-    const myQuestion = db.collection('questions').doc('IAI77NovNZ1iEpXgghtQ');
-    myQuestion.update({ question: e.target.value });
-}
+// function updateQuestion(e) {
+//     const db = firebase.firestore();
+//     const myQuestion = db.collection('questions').doc('IAI77NovNZ1iEpXgghtQ');
+//     myQuestion.update({ question: e.target.value });
+// }
 
 // Load master categories
 // TODO add user id param for per-user loading
@@ -160,37 +208,69 @@ function loadMasterCats() {
     const masterCatList = document.getElementById('master-cat-select');
     masterCatList.innerHTML = '';
 
-    masterCatRef.get().then((masterCats) => {
-        let first = true;
-        masterCats.forEach((doc) => {
-            // Clone template button and append
-            const inputTemplate = document.querySelector(
-                '#master-cat-button-template'
-            );
-            const inputTemplateLabel = document.querySelector(
-                '#master-cat-button-template-label'
-            );
+    let publicQuery = masterCatRef.where('public', 'in', ['all', 'used']);
+    if (CURRENT_USER_ID) {
+        publicQuery = publicQuery.where('owner_id', '!=', CURRENT_USER_ID);
+        userQuery = masterCatRef.where('owner_id', '==', CURRENT_USER_ID);
 
-            let inputClone = inputTemplate.cloneNode(true);
-            let inputLabelClone = inputTemplateLabel.cloneNode(true);
-            inputClone.id = 'radio_' + doc.id;
-            inputClone.value = doc.id;
-            inputLabelClone.id = doc.id;
-            inputLabelClone.innerHTML = doc.data().name;
-            inputLabelClone.setAttribute('for', 'radio_' + doc.id);
+        userQuery
+            .get()
+            .then((masterCats) => {
+                let first = true;
+                masterCats.forEach((doc) => {
+                    // Clone template button and append
+                    const inputTemplate = document.querySelector(
+                        '#master-cat-button-template'
+                    );
+                    const inputTemplateLabel = document.querySelector(
+                        '#master-cat-button-template-label'
+                    );
 
-            inputClone.style.display = 'block';
-            inputLabelClone.style.display = 'block';
-            masterCatList.appendChild(inputClone);
-            masterCatList.appendChild(inputLabelClone);
+                    let inputClone = inputTemplate.cloneNode(true);
+                    let inputLabelClone = inputTemplateLabel.cloneNode(true);
+                    inputClone.id = 'radio_' + doc.id;
+                    inputClone.value = doc.id;
+                    inputLabelClone.id = doc.id;
+                    inputLabelClone.innerHTML = doc.data().name;
+                    inputLabelClone.setAttribute('for', 'radio_' + doc.id);
 
-            if (first) {
-                inputClone.setAttribute('checked', true);
-                showPointValues(doc.data().point_values);
-                loadCategories(doc.id);
-                first = false;
-            }
+                    inputClone.style.display = 'block';
+                    inputLabelClone.style.display = 'block';
+                    masterCatList.appendChild(inputClone);
+                    masterCatList.appendChild(inputLabelClone);
+
+                    if (first) {
+                        inputClone.setAttribute('checked', true);
+                        showPointValues(doc.data().point_values);
+                        loadCategories(doc.id);
+                        first = false;
+                    }
+                });
+            })
+            .catch(console.log);
+    }
+    publicQuery.get().then((publicMasterCats) => {
+        console.log('here????');
+        const masterCatListTemplate = document.querySelector(
+            '#public-mastercat-dropdown-template'
+        );
+        let listClone = masterCatListTemplate.cloneNode(true);
+        listClone.id = '';
+        listClone.style.display = 'block';
+        const publicMasterCatList = listClone.getElementsByTagName('ul')[0];
+
+        publicMasterCats.forEach((doc) => {
+            const masterCatListItemTemplate = listClone.getElementsByTagName(
+                'li'
+            )[0];
+            let listItemClone = masterCatListItemTemplate.cloneNode(true);
+            listItemClone.id = doc.id;
+            listItemClone.innerHTML = doc.data().name;
+            listItemClone.style.display = 'block';
+            publicMasterCatList.appendChild(listItemClone);
         });
+
+        masterCatList.appendChild(listClone);
     });
 }
 
@@ -231,11 +311,7 @@ function loadCategories(masterCatID) {
         .setAttribute('data-cat-id', false);
     document.getElementById('quick-question-count-bar').innerHTML = '';
 
-    let catQuery = catRef.where(
-        'master_category_id',
-        '==',
-        masterCatRef.doc(masterCatID)
-    );
+    let catQuery = catRef.where('master_category_id', '==', masterCatID);
     catQuery.get().then((categories) => {
         categories.forEach((cat) => {
             const catListItemTemplate = document.querySelector(
@@ -251,50 +327,71 @@ function loadCategories(masterCatID) {
 }
 
 function getPointCounts(catID, used) {
+    let masterCatID = document.querySelector('input[name="master-cat"]:checked')
+        ?.value;
+    if (!masterCatID) {
+        masterCatID = document
+            .getElementById('mastercat-select-button')
+            .getAttribute('data-mastercat-id');
+    }
+
     let countQuery = questionRef
-        .where('category_id', '==', catRef.doc(catID))
+        .where('master_category_id', '==', masterCatID)
+        .where('category_id', '==', catID)
         .where('used', '==', used);
-    countQuery.get().then((questions) => {
-        let pointsTupleCount = {};
-        questions.forEach((qDoc) => {
-            if (pointsTupleCount[qDoc.data().points] == undefined) {
-                pointsTupleCount[qDoc.data().points] = 1;
-            } else {
-                pointsTupleCount[qDoc.data().points] += 1;
-            }
-        });
 
-        const qCountList = document.getElementById('quick-question-count-bar');
-        qCountList.innerHTML = '';
-        let pointFilterVal = document.querySelector(
-            'input[name="point-val"]:checked'
-        )?.value;
+    countQuery
+        .get()
+        .then((questions) => {
+            let pointsTupleCount = {};
+            questions.forEach((qDoc) => {
+                if (pointsTupleCount[qDoc.data().points] == undefined) {
+                    pointsTupleCount[qDoc.data().points] = 1;
+                } else {
+                    pointsTupleCount[qDoc.data().points] += 1;
+                }
+            });
 
-        Object.entries(pointsTupleCount).forEach(([pointVal, qCount]) => {
-            let thisQCount = document.createElement('div');
-            thisQCount.classList.add('q-count');
-            thisQCount.id = 'point-count-' + pointVal;
-            thisQCount.innerHTML = qCount;
+            const qCountList = document.getElementById(
+                'quick-question-count-bar'
+            );
+            qCountList.innerHTML = '';
+            let pointFilterVal = document.querySelector(
+                'input[name="point-val"]:checked'
+            )?.value;
 
-            if (pointVal == '2' && qCount < 15) {
-                thisQCount.classList.add('insufficient');
-            }
-            if (qCount < 5) {
-                thisQCount.classList.add('insufficient');
-            }
+            Object.entries(pointsTupleCount).forEach(([pointVal, qCount]) => {
+                let thisQCount = document.createElement('div');
+                thisQCount.classList.add('q-count');
+                thisQCount.id = 'point-count-' + pointVal;
+                thisQCount.innerHTML = qCount;
 
-            if (pointFilterVal && pointFilterVal == pointVal) {
-                thisQCount.classList.add('active');
-            }
-            qCountList.appendChild(thisQCount);
-        });
-        sortByID(qCountList);
-    });
+                if (pointVal == '2' && qCount < 15) {
+                    thisQCount.classList.add('insufficient');
+                }
+                if (qCount < 5) {
+                    thisQCount.classList.add('insufficient');
+                }
+
+                if (pointFilterVal && pointFilterVal == pointVal) {
+                    thisQCount.classList.add('active');
+                }
+                qCountList.appendChild(thisQCount);
+            });
+            sortByID(qCountList);
+        })
+        .catch(console.log);
 }
 
 function loadQuestion(pointVal = null) {
     let masterCatID = document.querySelector('input[name="master-cat"]:checked')
         ?.value;
+    if (!masterCatID) {
+        masterCatID = document
+            .getElementById('mastercat-select-button')
+            .getAttribute('data-mastercat-id');
+    }
+
     let catID = document
         .getElementById('category-select-button')
         .getAttribute('data-cat-id');
@@ -308,8 +405,8 @@ function loadQuestion(pointVal = null) {
         const randKey = questionRef.doc().id;
 
         let questionQuery = questionRef
-            .where('master_category_id', '==', masterCatRef.doc(masterCatID))
-            .where('category_id', '==', catRef.doc(catID))
+            .where('master_category_id', '==', masterCatID)
+            .where('category_id', '==', catID)
             .where('points', '==', parseFloat(pointVal))
             .where('used', '==', used)
             .where(

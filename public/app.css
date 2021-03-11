@@ -29,6 +29,15 @@ body {
     height: 4rem;
     z-index: 1000;
 }
+.top-nav .navbar-nav {
+    flex-direction: row;
+}
+.top-nav .nav-item {
+    margin-right: 1rem;
+}
+.top-nav .d-flex {
+    align-items: center;
+}
 #sign-in-button {
     float: right;
     font-size: 1.95rem;
@@ -156,7 +165,7 @@ nav.bottombar li.selected:hover .material-icons {
     justify-content: flex-start;
     flex-wrap: wrap;
     border-bottom: 1px solid white;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.75rem;
 }
 #filter-bar > .filter-group {
     display: flex;
@@ -273,10 +282,13 @@ input:checked + .slider:before {
     border-color: #5573f3;
     background-color: #5573f3;
 }
-.btn-outline-primary:active {
-    color: white;
-    border-color: #5573f3;
-    background-color: #5573f3;
+.btn-outline-primary.active,
+.btn-outline-primary:active,
+.btn-outline-primary:focus,
+.btn-outline-primary:active:focus {
+    color: white !important;
+    border-color: #5573f3 !important;
+    background-color: #5573f3 !important;
 }
 .btn-check:checked + .btn-outline-primary {
     color: white;
@@ -304,6 +316,7 @@ input:checked + .slider:before {
 .btn-outline-primary.dropdown-toggle.show {
     color: #5573f3;
     background-color: transparent;
+    border-color: #5573f3;
 }
 .dropdown-menu {
     border-radius: 0;

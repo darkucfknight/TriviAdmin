@@ -11,9 +11,7 @@ function readOldData() {
                 masterCatRef
                     .add({
                         name: master_name,
-                        owner_id: db.doc(
-                            'users/' + firebase.auth().currentUser.uid
-                        ),
+                        owner_id: firebase.auth().currentUser.uid,
                     })
                     .then((newMasterCategoy) => {
                         console.log(
@@ -25,10 +23,7 @@ function readOldData() {
                                 catRef
                                     .add({
                                         name: category_name,
-                                        master_category_id: db.doc(
-                                            'master_categories/' +
-                                                newMasterCategoy.id
-                                        ),
+                                        master_category_id: newMasterCategoy.id,
                                     })
                                     .then((newCategory) => {
                                         Object.entries(category).forEach(
@@ -91,11 +86,9 @@ function addQuestions(
     Object.entries(questions).forEach(([question_id, question]) => {
         questionRef
             .add({
-                master_category_id: db.doc(
-                    'master_categories/' + master_cat_id
-                ),
+                master_category_id: master_cat_id,
                 master_category: master_cat_name,
-                category_id: db.doc('categories/' + category_id),
+                category_id: category_id,
                 category: question.Category,
                 points: parseFloat(points),
                 question: question.Question,
