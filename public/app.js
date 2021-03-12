@@ -98,10 +98,10 @@ document.addEventListener('click', function (event) {
             .getAttribute('data-cat-id');
         if (currentCatID !== 'false') {
             // Get opposite of current used val as animation hasn't completed yet
-            getPointCounts(
-                currentCatID,
-                !document.getElementById('used-toggle').checked
-            );
+            // getPointCounts(
+            //     currentCatID,
+            //     !document.getElementById('used-toggle').checked
+            // );
         }
     }
 
@@ -113,23 +113,23 @@ document.addEventListener('click', function (event) {
         document
             .getElementById('category-select-button')
             .setAttribute('data-cat-id', event.target.id);
-        getPointCounts(
-            event.target.id,
-            document.getElementById('used-toggle').checked
-        );
+        // getPointCounts(
+        //     event.target.id,
+        //     document.getElementById('used-toggle').checked
+        // );
         loadQuestion(null);
     }
 
     // Point Val Select
     if (event.target.matches('.point-list-item')) {
         clearQuestion();
-        document
-            .getElementById('quick-question-count-bar')
-            .getElementsByClassName('active')[0]
-            ?.classList.remove('active');
-        document
-            .getElementById('point-count-' + event.target.id)
-            ?.classList.add('active');
+        // document
+        //     .getElementById('quick-question-count-bar')
+        //     .getElementsByClassName('active')[0]
+        //     ?.classList.remove('active');
+        // document
+        //     .getElementById('point-count-' + event.target.id)
+        //     ?.classList.add('active');
         loadQuestion(event.target.id);
     }
 });
@@ -250,7 +250,6 @@ function loadMasterCats() {
             .catch(console.log);
     }
     publicQuery.get().then((publicMasterCats) => {
-        console.log('here????');
         const masterCatListTemplate = document.querySelector(
             '#public-mastercat-dropdown-template'
         );
@@ -309,7 +308,7 @@ function loadCategories(masterCatID) {
     document
         .getElementById('category-select-button')
         .setAttribute('data-cat-id', false);
-    document.getElementById('quick-question-count-bar').innerHTML = '';
+    // document.getElementById('quick-question-count-bar').innerHTML = '';
 
     let catQuery = catRef.where('master_category_id', '==', masterCatID);
     catQuery.get().then((categories) => {
@@ -525,3 +524,76 @@ function showSnackbar(text) {
 //         document.querySelector('#imgUpload').setAttribute('src', url);
 //     });
 // }
+var ctx = document.getElementById('myChart');
+var redRGBA = 'rgba(255, 99, 132, 1)';
+var greenRGBA = 'rgba(97, 255, 136, 1)';
+// var myChart = new Chart(ctx, {
+//     type: 'horizontalBar',
+//     options: {
+//         maintainAspectRatio: false,
+//         scales: {
+//             yAxes: [
+//                 {
+//                     stacked: true,
+//                     ticks: {
+//                         reverse: false,
+//                         beginAtZero: true,
+//                     },
+//                 },
+//             ],
+//             xAxes: [
+//                 {
+//                     stacked: true,
+//                     ticks: {
+//                         reverse: true,
+//                         beginAtZero: true,
+//                     },
+//                 },
+//             ],
+//         },
+//     },
+//     data: {
+//         labels: [
+//             'Star Wars',
+//             'Harry Potter',
+//             'Name The Thing',
+//             'DC',
+//             'Marvel',
+//             'Star Trek',
+//             'Harry Poot',
+//             'Name The Gringo',
+//             'DCom',
+//             'Mar-vel',
+//         ],
+//         datasets: [
+//             {
+//                 label: '1 point',
+//                 data: [15, 9, 13, 5, 12, 3, 13, 5, 12, 3],
+//                 backgroundColor: 'rgba(136, 156, 247, .5)',
+//                 borderColor: [redRGBA, greenRGBA, redRGBA, greenRGBA],
+//                 borderWidth: 1,
+//             },
+//             {
+//                 label: '2 point',
+//                 data: [2, 9, 3, 15, 2, 12, 9, 3, 15, 2],
+//                 backgroundColor: 'rgba(88, 117, 243, .5)',
+//                 borderColor: [redRGBA, redRGBA, redRGBA, greenRGBA],
+//                 borderWidth: 1,
+//             },
+//             {
+//                 label: '3.2 point',
+//                 data: [1, 15, 3, 6, 2, 4, 9, 3, 15, 2],
+//                 backgroundColor: 'rgba(40, 77, 240, .5)',
+//                 borderColor: [redRGBA, greenRGBA, redRGBA, greenRGBA],
+//                 borderWidth: 1,
+//             },
+//             {
+//                 label: '3.3 point',
+//                 data: [1, 1, 3, 1, 2, 3, 12, 3, 13, 5],
+//                 backgroundColor: 'rgba(15, 52, 215, .5)',
+//                 borderColor: [redRGBA, greenRGBA, redRGBA, greenRGBA],
+//                 borderWidth: 1,
+//             },
+//         ],
+//     },
+// });

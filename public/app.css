@@ -10,11 +10,11 @@ body {
     padding-top: 4.75rem;
     padding-bottom: 0.5rem;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 .main-content > div {
     padding-left: 2%;
-    padding-right: 2%;
+    /* padding-right: 2%; */
 }
 .little-label {
     color: white;
@@ -109,12 +109,6 @@ nav.bottombar li.selected:hover .material-icons {
     text-decoration: none;
 }
 
-@media (min-width: 35.1em) {
-    .bottombar {
-        display: none;
-    }
-}
-
 /* || Filter bar */
 #filter-bar {
     display: flex;
@@ -147,9 +141,15 @@ nav.bottombar li.selected:hover .material-icons {
 }
 
 /* || Question section */
+#question-section {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
 #question-data-section {
     display: flex;
     height: 100%;
+    width: 50%;
     flex-direction: column;
     overflow-y: scroll;
 }
@@ -167,6 +167,17 @@ nav.bottombar li.selected:hover .material-icons {
 .question-data {
     color: white;
     font-size: 100%;
+}
+
+@media (min-width: 35.1em) {
+    .question-data {
+        font-size: 1.5rem;
+    }
+}
+
+#chart-container {
+    width: 50%;
+    height: 100%;
 }
 
 /* || TOGGLE */
