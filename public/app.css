@@ -115,50 +115,6 @@ nav.bottombar li.selected:hover .material-icons {
     }
 }
 
-/* mobile */
-@media (max-width: 35em) {
-    .main-content {
-        padding-bottom: 5.75rem;
-    }
-
-    .bottombar {
-        position: fixed;
-        margin: 0;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        height: 5rem;
-    }
-
-    .bottombar ul {
-        display: flex;
-        width: 100%;
-        justify-content: space-around;
-    }
-
-    .bottombar li {
-        float: left;
-        width: 25%;
-        list-style-type: none;
-        text-align: center;
-    }
-
-    .bottombar a {
-        display: block;
-        padding: 5px;
-        height: 74px;
-    }
-
-    .bottombar i,
-    .bottombar span {
-        display: block;
-    }
-
-    .bottombar span {
-        font-size: 14px;
-    }
-}
-
 /* || Filter bar */
 #filter-bar {
     display: flex;
