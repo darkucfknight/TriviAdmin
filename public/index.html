@@ -100,14 +100,20 @@
                     >
                         <li class="nav-item">
                             <a
-                                class="nav-link active"
+                                class="nav-link mode-select active"
                                 aria-current="page"
                                 href="#"
+                                data-mode="host"
                                 >Host</a
                             >
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Plan</a>
+                            <a
+                                class="nav-link mode-select"
+                                href="#"
+                                data-mode="plan"
+                                >Plan</a
+                            >
                         </li>
                     </ul>
                     <div
@@ -278,7 +284,7 @@
                     <canvas id="myChart"></canvas>
                 </div>
             </div>
-            <!-- <div id="quick-question-count-bar"></div> -->
+            <div id="quick-question-count-bar"></div>
         </div>
 
         <div id="snackbar">Unknown error</div>

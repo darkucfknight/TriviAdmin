@@ -1,12 +1,14 @@
 /* || BODY */
 body {
-    /* position: fixed; */
+    display: flex;
+    justify-content: center;
     height: 100vh;
     background-color: black;
 }
 .main-content {
     height: inherit;
     display: flex;
+    width: 100%;
     padding-top: 4.75rem;
     padding-bottom: 0.5rem;
     flex-direction: column;
@@ -124,6 +126,11 @@ nav.bottombar li.selected:hover .material-icons {
     margin-right: 10px;
 }
 
+#filter-bar .point-list-item.disabled {
+    text-decoration: line-through;
+    color: gray;
+}
+
 /* || Quick Question Count Bar */
 #quick-question-count-bar {
     display: flex;
@@ -149,7 +156,6 @@ nav.bottombar li.selected:hover .material-icons {
 #question-data-section {
     display: flex;
     height: 100%;
-    width: 50%;
     flex-direction: column;
     overflow-y: scroll;
 }
@@ -169,15 +175,34 @@ nav.bottombar li.selected:hover .material-icons {
     font-size: 100%;
 }
 
+/* Cat Count Chart */
+#chart-container {
+    width: 50%;
+    height: 100%;
+}
+
 @media (min-width: 35.1em) {
     .question-data {
         font-size: 1.5rem;
     }
+    #quick-question-count-bar {
+        display: none;
+    }
+    #chart-container {
+        display: block;
+    }
+    #question-data-section {
+        width: 50%;
+    }
 }
 
-#chart-container {
-    width: 50%;
-    height: 100%;
+@media (max-width: 35em) {
+    #quick-question-count-bar {
+        display: flex;
+    }
+    #chart-container {
+        display: none;
+    }
 }
 
 /* || TOGGLE */
@@ -364,14 +389,12 @@ input:checked + .slider:before {
 #snackbar {
     visibility: hidden; /* Hidden by default. Visible on click */
     min-width: 250px; /* Set a default minimum width */
-    margin-left: -125px; /* Divide value of min-width by 2 */
     background-color: #333; /* Black background color */
     color: #fff; /* White text color */
     text-align: center; /* Centered text */
     border-radius: 2px; /* Rounded borders */
     padding: 16px; /* Padding */
     position: fixed; /* Sit on top of the screen */
-    left: 50%; /* Center the snackbar */
     bottom: 30px; /* 30px from the bottom */
     z-index: 1000;
 }

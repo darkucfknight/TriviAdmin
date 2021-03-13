@@ -1,6 +1,6 @@
 let CURRENT_USER_ID = null;
 let CURRENT_QUESTION_ID = null;
-let GOOGLE_TOKEN = null;
+let ERROR_COUNT = 0;
 let db = null;
 let masterCatRef = null;
 let catRef = null;
@@ -15,16 +15,24 @@ const SIGN_OUT_MODAL = new bootstrap.Modal(
 document.addEventListener('DOMContentLoaded', (event) => {
     const app = firebase.app();
 
+    // Check logged-in status
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+            getLoggedInUserData(user);
+        } else {
+            CURRENT_USER_ID = null;
+            loadMasterCats();
+        }
+    });
+
     db = firebase.firestore();
     masterCatRef = db.collection('master_categories');
     catRef = db.collection('categories');
     questionRef = db.collection('questions');
     userRef = db.collection('users');
-
-    loadMasterCats();
 });
 
-// || ALL Click Events (single listener for optimization)
+// || ALL CLICK EVENTS (single listener for optimization)
 // TODO Handle spam clicking
 document.addEventListener('click', function (event) {
     // Profile Icon
@@ -41,9 +49,18 @@ document.addEventListener('click', function (event) {
         SIGN_OUT_MODAL.hide();
     }
 
+    if (event.target.matches('.mode-select:not(.active)')) {
+        document
+            .querySelector('.mode-select.active')
+            .classList.remove('active');
+        event.target.classList.add('active');
+        switchMode(event.target.getAttribute('data-mode'));
+    }
+
     // MasterCat Select
     if (event.target.matches('.master-cat-list-item')) {
         clearQuestion();
+        ERROR_COUNT = 0;
         let masterCatSelectButton = document.getElementById(
             'mastercat-select-button'
         );
@@ -62,6 +79,7 @@ document.addEventListener('click', function (event) {
     }
 
     if (event.target.matches('.mastercat-list-item')) {
+        ERROR_COUNT = 0;
         clearQuestion();
 
         let mastercatSelectButton = document.getElementById(
@@ -93,49 +111,55 @@ document.addEventListener('click', function (event) {
     // Used Toggle
     if (event.target.matches('#used-toggle-slider')) {
         clearQuestion();
+        ERROR_COUNT = 0;
+
         let currentCatID = document
             .getElementById('category-select-button')
             .getAttribute('data-cat-id');
         if (currentCatID !== 'false') {
             // Get opposite of current used val as animation hasn't completed yet
-            // getPointCounts(
-            //     currentCatID,
-            //     !document.getElementById('used-toggle').checked
-            // );
+            getPointCounts(
+                currentCatID,
+                !document.getElementById('used-toggle').checked
+            );
         }
     }
 
     // Category Select
     if (event.target.matches('.category-list-item')) {
         clearQuestion();
+        ERROR_COUNT = 0;
+
         document.getElementById('category-select-button').innerHTML =
             event.target.innerHTML;
         document
             .getElementById('category-select-button')
             .setAttribute('data-cat-id', event.target.id);
-        // getPointCounts(
-        //     event.target.id,
-        //     document.getElementById('used-toggle').checked
-        // );
+        getPointCounts(
+            event.target.id,
+            document.getElementById('used-toggle').checked
+        );
         loadQuestion(null);
     }
 
     // Point Val Select
     if (event.target.matches('.point-list-item')) {
         clearQuestion();
-        // document
-        //     .getElementById('quick-question-count-bar')
-        //     .getElementsByClassName('active')[0]
-        //     ?.classList.remove('active');
-        // document
-        //     .getElementById('point-count-' + event.target.id)
-        //     ?.classList.add('active');
+        ERROR_COUNT = 0;
+
+        document
+            .getElementById('quick-question-count-bar')
+            .getElementsByClassName('active')[0]
+            ?.classList.remove('active');
+        document
+            .getElementById('point-count-' + event.target.id)
+            ?.classList.add('active');
         loadQuestion(event.target.id);
     }
 });
 
 function handleProfileClick() {
-    if (GOOGLE_TOKEN === null) {
+    if (CURRENT_USER_ID === null) {
         googleLogin();
     } else {
         SIGN_OUT_MODAL.show();
@@ -145,30 +169,26 @@ function handleProfileClick() {
 function googleLogin() {
     const provider = new firebase.auth.GoogleAuthProvider();
     const db = firebase.firestore();
-    firebase
-        .auth()
-        .signInWithPopup(provider)
-        .then((result) => {
-            const user = result.user;
-            CURRENT_USER_ID = user.uid;
-            GOOGLE_TOKEN = result.credential.accessToken;
+    firebase.auth().signInWithPopup(provider).catch(console.log);
+}
 
-            loadMasterCats();
+function getLoggedInUserData(user) {
+    CURRENT_USER_ID = user.uid;
 
-            document.getElementById('signed-in-navbar').style.display = 'flex';
+    loadMasterCats();
 
-            userRef.doc(user.uid).set({
-                display_name: user.displayName,
-                email: user.email,
-                photo_URL: user.photoURL,
-                last_login: new Date(),
-            });
+    document.getElementById('signed-in-navbar').style.display = 'flex';
 
-            document.getElementById('profile-icon').style.display = 'none';
-            document.getElementById('sign-in-button').style.backgroundImage =
-                'url(' + user.photoURL + ')';
-        })
-        .catch(console.log);
+    userRef.doc(user.uid).set({
+        display_name: user.displayName,
+        email: user.email,
+        photo_URL: user.photoURL,
+        last_login: new Date(),
+    });
+
+    document.getElementById('profile-icon').style.display = 'none';
+    document.getElementById('sign-in-button').style.backgroundImage =
+        'url(' + user.photoURL + ')';
 }
 
 function googleLogout() {
@@ -179,9 +199,6 @@ function googleLogout() {
             function () {
                 console.log('Signout Succesfull');
                 CURRENT_USER_ID = null;
-                GOOGLE_TOKEN = null;
-
-                loadMasterCats();
 
                 document.getElementById('signed-in-navbar').style.display =
                     'none';
@@ -194,6 +211,11 @@ function googleLogout() {
                 console.log('Signout Failed');
             }
         );
+}
+
+// TODO
+function switchMode(mode) {
+    console.log('switch mode: ' + mode);
 }
 
 // function updateQuestion(e) {
@@ -308,7 +330,7 @@ function loadCategories(masterCatID) {
     document
         .getElementById('category-select-button')
         .setAttribute('data-cat-id', false);
-    // document.getElementById('quick-question-count-bar').innerHTML = '';
+    document.getElementById('quick-question-count-bar').innerHTML = '';
 
     let catQuery = catRef.where('master_category_id', '==', masterCatID);
     catQuery.get().then((categories) => {
@@ -325,7 +347,7 @@ function loadCategories(masterCatID) {
     });
 }
 
-function getPointCounts(catID, used) {
+function getPointCounts(catID = null, used = null) {
     let masterCatID = document.querySelector('input[name="master-cat"]:checked')
         ?.value;
     if (!masterCatID) {
@@ -334,52 +356,76 @@ function getPointCounts(catID, used) {
             .getAttribute('data-mastercat-id');
     }
 
-    let countQuery = questionRef
-        .where('master_category_id', '==', masterCatID)
-        .where('category_id', '==', catID)
-        .where('used', '==', used);
+    if (catID == null) {
+        catID = document
+            .getElementById('category-select-button')
+            .getAttribute('data-cat-id');
+    }
 
-    countQuery
-        .get()
-        .then((questions) => {
-            let pointsTupleCount = {};
-            questions.forEach((qDoc) => {
-                if (pointsTupleCount[qDoc.data().points] == undefined) {
-                    pointsTupleCount[qDoc.data().points] = 1;
-                } else {
-                    pointsTupleCount[qDoc.data().points] += 1;
-                }
+    if (used == null) {
+        used = document.getElementById('used-toggle').checked;
+    }
+
+    if (masterCatID != null && catID != null && used != null) {
+        const pointValLabels = document.querySelectorAll('.point-list-item');
+        pointValLabels.forEach((label) => {
+            label.classList.add('disabled');
+        });
+
+        let countQuery = questionRef
+            .where('master_category_id', '==', masterCatID)
+            .where('category_id', '==', catID)
+            .where('used', '==', used);
+
+        countQuery
+            .get()
+            .then((questions) => {
+                let pointsTupleCount = {};
+                questions.forEach((qDoc) => {
+                    if (pointsTupleCount[qDoc.data().points] == undefined) {
+                        pointsTupleCount[qDoc.data().points] = 1;
+                        document
+                            .getElementById(qDoc.data().points)
+                            .classList.remove('disabled');
+                    } else {
+                        pointsTupleCount[qDoc.data().points] += 1;
+                    }
+                });
+
+                const qCountList = document.getElementById(
+                    'quick-question-count-bar'
+                );
+                qCountList.innerHTML = '';
+                let pointFilterVal = document.querySelector(
+                    'input[name="point-val"]:checked'
+                )?.value;
+
+                Object.entries(pointsTupleCount).forEach(
+                    ([pointVal, qCount]) => {
+                        let thisQCount = document.createElement('div');
+                        thisQCount.classList.add('q-count');
+                        thisQCount.id = 'point-count-' + pointVal;
+                        thisQCount.innerHTML = qCount;
+
+                        if (pointVal == '2' && qCount < 15) {
+                            thisQCount.classList.add('insufficient');
+                        }
+                        if (qCount < 5) {
+                            thisQCount.classList.add('insufficient');
+                        }
+
+                        if (pointFilterVal && pointFilterVal == pointVal) {
+                            thisQCount.classList.add('active');
+                        }
+                        qCountList.appendChild(thisQCount);
+                    }
+                );
+                sortByID(qCountList);
+            })
+            .catch((err) => {
+                handleRetrieveError(err);
             });
-
-            const qCountList = document.getElementById(
-                'quick-question-count-bar'
-            );
-            qCountList.innerHTML = '';
-            let pointFilterVal = document.querySelector(
-                'input[name="point-val"]:checked'
-            )?.value;
-
-            Object.entries(pointsTupleCount).forEach(([pointVal, qCount]) => {
-                let thisQCount = document.createElement('div');
-                thisQCount.classList.add('q-count');
-                thisQCount.id = 'point-count-' + pointVal;
-                thisQCount.innerHTML = qCount;
-
-                if (pointVal == '2' && qCount < 15) {
-                    thisQCount.classList.add('insufficient');
-                }
-                if (qCount < 5) {
-                    thisQCount.classList.add('insufficient');
-                }
-
-                if (pointFilterVal && pointFilterVal == pointVal) {
-                    thisQCount.classList.add('active');
-                }
-                qCountList.appendChild(thisQCount);
-            });
-            sortByID(qCountList);
-        })
-        .catch(console.log);
+    }
 }
 
 function loadQuestion(pointVal = null) {
@@ -454,10 +500,27 @@ function loadQuestion(pointVal = null) {
                             });
                         })
                         .catch((err) => {
-                            console.log('Error getting documents', err);
+                            handleRetrieveError(err);
                         });
                 }
+            })
+            .catch((err) => {
+                handleRetrieveError(err);
             });
+    }
+}
+
+function handleRetrieveError(err) {
+    if (err.message.includes('permission')) {
+        ERROR_COUNT += 1;
+        showSnackbar(
+            'Selected master category has only made used questions available. Used selected, trying again.'
+        );
+        if (ERROR_COUNT <= 1) {
+            document.getElementById('used-toggle').checked = true;
+            getPointCounts();
+            loadQuestion();
+        }
     }
 }
 
