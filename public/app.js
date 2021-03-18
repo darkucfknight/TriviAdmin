@@ -6,6 +6,7 @@ let masterCatRef = null;
 let catRef = null;
 let questionRef = null;
 let userRef = null;
+let pointCountChart = null;
 
 const SIGN_OUT_MODAL = new bootstrap.Modal(
     document.getElementById('sign-out-confirm-modal')
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             getLoggedInUserData(user);
         } else {
             CURRENT_USER_ID = null;
+            handleLogout();
             loadMasterCats();
         }
     });
@@ -70,6 +72,8 @@ document.addEventListener('click', function (event) {
 
         loadCategories(event.target.id);
 
+        loadCountGraph(event.target.id);
+
         masterCatRef
             .doc(event.target.id)
             .get()
@@ -99,6 +103,7 @@ document.addEventListener('click', function (event) {
         }
 
         loadCategories(event.target.id);
+        loadCountGraph(event.target.id);
 
         masterCatRef
             .doc(event.target.id)
@@ -113,16 +118,27 @@ document.addEventListener('click', function (event) {
         clearQuestion();
         ERROR_COUNT = 0;
 
+        // Value not accurate due to animation. Take opposite of current val to get new val.
+        const newUsedVal = !document.getElementById('used-toggle').checked;
+
         let currentCatID = document
             .getElementById('category-select-button')
             .getAttribute('data-cat-id');
+
+        document.getElementById('mark-used-button').innerHTML = newUsedVal
+            ? 'Mark Unused'
+            : 'Mark Used';
+        document.getElementById(
+            'mark-used-button-mobile'
+        ).innerHTML = newUsedVal ? 'Mark Unused' : 'Mark Used';
+
         if (currentCatID !== 'false') {
             // Get opposite of current used val as animation hasn't completed yet
-            getPointCounts(
-                currentCatID,
-                !document.getElementById('used-toggle').checked
-            );
+            getPointCounts(currentCatID, newUsedVal);
         }
+        window.setTimeout(function () {
+            loadCountGraph();
+        }, 500);
     }
 
     // Category Select
@@ -156,6 +172,21 @@ document.addEventListener('click', function (event) {
             ?.classList.add('active');
         loadQuestion(event.target.id);
     }
+
+    // Get Question Button
+    if (event.target.matches('#get-question-button')) {
+        clearQuestion();
+        ERROR_COUNT = 0;
+        loadQuestion();
+    }
+
+    // Mark Used Button
+    if (
+        event.target.matches('#mark-used-button') ||
+        event.target.matches('#mark-used-button-mobile')
+    ) {
+        markUsed();
+    }
 });
 
 function handleProfileClick() {
@@ -178,6 +209,8 @@ function getLoggedInUserData(user) {
     loadMasterCats();
 
     document.getElementById('signed-in-navbar').style.display = 'flex';
+    document.getElementById('mark-used-button').style.display = 'flex';
+    document.getElementById('mark-used-button-mobile').style.display = 'flex';
 
     userRef.doc(user.uid).set({
         display_name: user.displayName,
@@ -198,19 +231,21 @@ function googleLogout() {
         .then(
             function () {
                 console.log('Signout Succesfull');
-                CURRENT_USER_ID = null;
-
-                document.getElementById('signed-in-navbar').style.display =
-                    'none';
-                document.getElementById('profile-icon').style.display = 'flex';
-                document.getElementById(
-                    'sign-in-button'
-                ).style.backgroundImage = 'none';
             },
             function (error) {
                 console.log('Signout Failed');
             }
         );
+}
+
+function handleLogout() {
+    CURRENT_USER_ID = null;
+    document.getElementById('mark-used-button').style.display = ' none';
+    document.getElementById('mark-used-button-mobile').style.display = ' none';
+
+    document.getElementById('signed-in-navbar').style.display = 'none';
+    document.getElementById('profile-icon').style.display = 'flex';
+    document.getElementById('sign-in-button').style.backgroundImage = 'none';
 }
 
 // TODO
@@ -265,6 +300,7 @@ function loadMasterCats() {
                         inputClone.setAttribute('checked', true);
                         showPointValues(doc.data().point_values);
                         loadCategories(doc.id);
+                        loadCountGraph(doc.id);
                         first = false;
                     }
                 });
@@ -325,14 +361,15 @@ function showPointValues(pointValues) {
 function loadCategories(masterCatID) {
     const catList = document.getElementById('category-list');
     catList.innerHTML = '';
-    document.getElementById('category-select-button').innerHTML =
-        'Select Category';
+    document.getElementById('category-select-button').innerHTML = 'Select';
     document
         .getElementById('category-select-button')
         .setAttribute('data-cat-id', false);
     document.getElementById('quick-question-count-bar').innerHTML = '';
 
-    let catQuery = catRef.where('master_category_id', '==', masterCatID);
+    let catQuery = catRef
+        .where('master_category_id', '==', masterCatID)
+        .orderBy('name');
     catQuery.get().then((categories) => {
         categories.forEach((cat) => {
             const catListItemTemplate = document.querySelector(
@@ -440,13 +477,15 @@ function loadQuestion(pointVal = null) {
     let catID = document
         .getElementById('category-select-button')
         .getAttribute('data-cat-id');
+
     let used = document.getElementById('used-toggle').checked;
+
     if (!pointVal) {
         pointVal = document.querySelector('input[name="point-val"]:checked')
             ?.value;
     }
 
-    if (masterCatID && catID != 'false' && pointVal) {
+    if (masterCatID && catID && catID != 'false' && pointVal) {
         const randKey = questionRef.doc().id;
 
         let questionQuery = questionRef
@@ -484,9 +523,6 @@ function loadQuestion(pointVal = null) {
                             if (snapshot.size == 0) {
                                 if (CURRENT_QUESTION_ID) {
                                     CURRENT_QUESTION_ID = null;
-                                    showSnackbar(
-                                        'Only one question matched your selection.'
-                                    );
                                     loadQuestion();
                                 } else {
                                     showSnackbar(
@@ -507,6 +543,13 @@ function loadQuestion(pointVal = null) {
             .catch((err) => {
                 handleRetrieveError(err);
             });
+    } else {
+        showSnackbar(
+            'Mising required selections: ' +
+                (masterCatID ? '' : 'master category, ') +
+                (catID && catID != 'false' ? '' : 'category, ') +
+                (pointVal ? '' : 'point value')
+        );
     }
 }
 
@@ -520,8 +563,23 @@ function handleRetrieveError(err) {
             document.getElementById('used-toggle').checked = true;
             getPointCounts();
             loadQuestion();
+            loadCountGraph();
         }
     }
+}
+
+function markUsed(qID = null) {
+    let currentUsedVal = document.getElementById('used-toggle').checked;
+    questionRef
+        .doc(qID ? qID : CURRENT_QUESTION_ID)
+        .update({
+            used: !currentUsedVal,
+        })
+        .then(() => {
+            showSnackbar(
+                'Question marked ' + (currentUsedVal ? 'unused.' : 'used.')
+            );
+        });
 }
 
 function showQuestion(question) {
@@ -573,6 +631,7 @@ function showSnackbar(text) {
         snack.className = snack.className.replace('show', '');
     }, 3000);
 }
+// TODO support images attached to questions
 // function uploadFile(files) {
 //     const storageRef = firebase.storage().ref();
 //     const horseRef = storageRef.child('horse.jpg');
@@ -587,76 +646,188 @@ function showSnackbar(text) {
 //         document.querySelector('#imgUpload').setAttribute('src', url);
 //     });
 // }
-var ctx = document.getElementById('myChart');
-var redRGBA = 'rgba(255, 99, 132, 1)';
-var greenRGBA = 'rgba(97, 255, 136, 1)';
-// var myChart = new Chart(ctx, {
-//     type: 'horizontalBar',
-//     options: {
-//         maintainAspectRatio: false,
-//         scales: {
-//             yAxes: [
-//                 {
-//                     stacked: true,
-//                     ticks: {
-//                         reverse: false,
-//                         beginAtZero: true,
-//                     },
-//                 },
-//             ],
-//             xAxes: [
-//                 {
-//                     stacked: true,
-//                     ticks: {
-//                         reverse: true,
-//                         beginAtZero: true,
-//                     },
-//                 },
-//             ],
-//         },
-//     },
-//     data: {
-//         labels: [
-//             'Star Wars',
-//             'Harry Potter',
-//             'Name The Thing',
-//             'DC',
-//             'Marvel',
-//             'Star Trek',
-//             'Harry Poot',
-//             'Name The Gringo',
-//             'DCom',
-//             'Mar-vel',
-//         ],
-//         datasets: [
-//             {
-//                 label: '1 point',
-//                 data: [15, 9, 13, 5, 12, 3, 13, 5, 12, 3],
-//                 backgroundColor: 'rgba(136, 156, 247, .5)',
-//                 borderColor: [redRGBA, greenRGBA, redRGBA, greenRGBA],
-//                 borderWidth: 1,
-//             },
-//             {
-//                 label: '2 point',
-//                 data: [2, 9, 3, 15, 2, 12, 9, 3, 15, 2],
-//                 backgroundColor: 'rgba(88, 117, 243, .5)',
-//                 borderColor: [redRGBA, redRGBA, redRGBA, greenRGBA],
-//                 borderWidth: 1,
-//             },
-//             {
-//                 label: '3.2 point',
-//                 data: [1, 15, 3, 6, 2, 4, 9, 3, 15, 2],
-//                 backgroundColor: 'rgba(40, 77, 240, .5)',
-//                 borderColor: [redRGBA, greenRGBA, redRGBA, greenRGBA],
-//                 borderWidth: 1,
-//             },
-//             {
-//                 label: '3.3 point',
-//                 data: [1, 1, 3, 1, 2, 3, 12, 3, 13, 5],
-//                 backgroundColor: 'rgba(15, 52, 215, .5)',
-//                 borderColor: [redRGBA, greenRGBA, redRGBA, greenRGBA],
-//                 borderWidth: 1,
-//             },
-//         ],
-//     },
-// });
+
+function loadCountGraph(masterCatID = null) {
+    if (!masterCatID) {
+        masterCatID = document.querySelector('input[name="master-cat"]:checked')
+            ?.value;
+        if (!masterCatID) {
+            masterCatID = document
+                .getElementById('mastercat-select-button')
+                .getAttribute('data-mastercat-id');
+        }
+    }
+    let usedStatus = document.getElementById('used-toggle').checked;
+    let categories = [];
+    let pointCounts = {};
+
+    if (masterCatID) {
+        questionRef
+            .where('master_category_id', '==', masterCatID)
+            .where('used', '==', usedStatus)
+            .get()
+            .then((snapshot) => {
+                snapshot.forEach((question) => {
+                    question = question.data();
+                    let catIndex = categories.indexOf(question.category);
+
+                    if (catIndex == -1) {
+                        binaryInsert(question.category, categories);
+                        catIndex = categories.indexOf(question.category);
+                    }
+
+                    if (!pointCounts[question.points]) {
+                        pointCounts[question.points] = new Array();
+                        pointCounts[question.points][catIndex] = 1;
+                    } else {
+                        if (isNaN(pointCounts[question.points][catIndex])) {
+                            pointCounts[question.points][catIndex] = 1;
+                        } else {
+                            pointCounts[question.points][catIndex] += 1;
+                        }
+                    }
+                });
+                // Format Data for ChartJS
+                let fullDataset = [];
+                Object.entries(pointCounts).forEach(([pointVal, pCount]) => {
+                    pointDataset = cleanAndColorData(pCount, pointVal);
+                    fullDataset.push(pointDataset);
+                });
+
+                populateCountGraph(categories, fullDataset);
+            })
+            .catch((err) => {
+                handleRetrieveError(err);
+            });
+    }
+}
+
+function cleanAndColorData(pointCountList, pointVal) {
+    const redRGBA = 'rgba(255, 99, 132, 1)';
+    const greenRGBA = 'rgba(97, 255, 136, 1)';
+
+    let datasetObject = {
+        label: pointVal + ' point',
+        data: pointCountList,
+        backgroundColor: 'rgba(136, 156, 247, .5)',
+        borderColor: 'rgba(97, 255, 136, 1)',
+        borderWidth: 1,
+    };
+
+    let cleanPoints = [];
+    let pointColors = [];
+
+    if (pointCountList && pointCountList.length > 0) {
+        for (var i = 0; i < pointCountList.length; i++) {
+            if (pointCountList[i] === undefined) {
+                cleanPoints[i] = 0;
+            } else {
+                cleanPoints[i] = pointCountList[i];
+            }
+            pointColors.push(
+                cleanPoints[i] > (parseInt(pointVal) == 2 ? 15 : 5)
+                    ? greenRGBA
+                    : redRGBA
+            );
+        }
+        datasetObject.data = cleanPoints;
+        datasetObject.borderColor = pointColors;
+    } else {
+        datasetObject.data = pointCountList;
+        datasetObject.borderColor = redRGBA;
+    }
+
+    return datasetObject;
+}
+
+function populateCountGraph(categories, preformattedData) {
+    var ctx = document.getElementById('pointCountChart');
+
+    if (pointCountChart) {
+        pointCountChart.destroy();
+    }
+
+    pointCountChart = new Chart(ctx, {
+        type: 'horizontalBar',
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [
+                    {
+                        stacked: true,
+                        ticks: {
+                            reverse: false,
+                            beginAtZero: true,
+                        },
+                    },
+                ],
+                xAxes: [
+                    {
+                        stacked: true,
+                        ticks: {
+                            reverse: true,
+                            beginAtZero: true,
+                        },
+                    },
+                ],
+            },
+            tooltips: {
+                position: 'nearest',
+            },
+        },
+        data: {
+            labels: categories,
+            datasets: preformattedData,
+        },
+    });
+    ctx.onclick = function (evt) {
+        var activePoint = pointCountChart.getElementAtEvent(evt)[0];
+        var data = activePoint._chart.data;
+        var datasetIndex = activePoint._datasetIndex;
+        var pointValue = data.datasets[datasetIndex].label;
+        var value = data.datasets[datasetIndex].data[activePoint._index];
+        var category = data.labels[activePoint._index];
+
+        console.log('point value: ' + pointValue);
+        console.log('category: ' + category);
+    };
+}
+
+// Insert into sorted list from
+// https://machinesaredigging.com/2014/04/27/binary-insert-how-to-keep-an-array-sorted-as-you-insert-data-in-it/
+function binaryInsert(value, array, startVal, endVal) {
+    var length = array.length;
+    var start = typeof startVal != 'undefined' ? startVal : 0;
+    var end = typeof endVal != 'undefined' ? endVal : length - 1; //!! endVal could be 0 don't use || syntax
+    var m = start + Math.floor((end - start) / 2);
+
+    if (length == 0) {
+        array.push(value);
+        return;
+    }
+
+    if (value > array[end]) {
+        array.splice(end + 1, 0, value);
+        return;
+    }
+
+    if (value < array[start]) {
+        //!!
+        array.splice(start, 0, value);
+        return;
+    }
+
+    if (start >= end) {
+        return;
+    }
+
+    if (value < array[m]) {
+        binaryInsert(value, array, start, m - 1);
+        return;
+    }
+
+    if (value > array[m]) {
+        binaryInsert(value, array, m + 1, end);
+        return;
+    }
+}

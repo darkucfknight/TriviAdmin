@@ -119,9 +119,11 @@ nav.bottombar li.selected:hover .material-icons {
     border-bottom: 1px solid white;
     padding-bottom: 0.75rem;
 }
-#filter-bar > .filter-group {
+#filter-bar > .filter-group,
+#filter-bar > .question-action {
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
     margin-left: 10px;
     margin-right: 10px;
 }
@@ -152,6 +154,8 @@ nav.bottombar li.selected:hover .material-icons {
     display: flex;
     flex-direction: row;
     height: 100%;
+    padding: 0.75em;
+    padding-top: 0.25em;
 }
 #question-data-section {
     display: flex;
@@ -167,12 +171,22 @@ nav.bottombar li.selected:hover .material-icons {
 #question-data-section::-webkit-scrollbar-thumb {
     background: #ff0000;
 }
+#question-data-section #question-actions-mobile {
+    margin-top: auto;
+}
 #question-data-section .little-label {
     color: gray;
 }
 .question-data {
     color: white;
     font-size: 100%;
+}
+.question-action > .btn-outline-primary:active,
+.question-action > .btn-outline-primary:focus,
+#question-actions-mobile > .btn-outline-primary:focus {
+    color: #5573f3 !important;
+    border-color: #5573f3 !important;
+    background-color: transparent !important;
 }
 
 /* Cat Count Chart */
@@ -181,6 +195,7 @@ nav.bottombar li.selected:hover .material-icons {
     height: 100%;
 }
 
+/* Desktop */
 @media (min-width: 35.1em) {
     .question-data {
         font-size: 1.5rem;
@@ -194,13 +209,30 @@ nav.bottombar li.selected:hover .material-icons {
     #question-data-section {
         width: 50%;
     }
+    #question-actions-mobile {
+        display: none;
+    }
+    #filter-bar > .question-action {
+        display: flex;
+    }
 }
-
+/* MOBILE */
 @media (max-width: 35em) {
     #quick-question-count-bar {
         display: flex;
     }
     #chart-container {
+        display: none;
+    }
+    #question-data-section {
+        width: 100%;
+    }
+    #question-actions-mobile {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    #filter-bar > .question-action {
         display: none;
     }
 }
@@ -309,6 +341,9 @@ input:checked + .slider:before {
     color: #5573f3;
     background-color: transparent;
     border-color: #5573f3;
+}
+.btn-action {
+    border-radius: 20px;
 }
 .dropdown-menu {
     border-radius: 0;

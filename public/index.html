@@ -198,7 +198,7 @@
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                         >
-                            Select Category
+                            Select
                         </button>
                         <ul
                             id="category-list"
@@ -233,6 +233,26 @@
                         style="display: none"
                     ></label>
                 </div>
+                <div class="question-action">
+                    <button
+                        class="btn btn-outline-primary btn-action"
+                        type="button"
+                        id="mark-used-button"
+                        style="display: none"
+                    >
+                        Mark Used
+                    </button>
+                </div>
+                <div class="question-action">
+                    <button
+                        class="btn btn-outline-primary btn-action"
+                        type="button"
+                        id="get-question-button"
+                    >
+                        Get Question
+                    </button>
+                </div>
+
                 <div
                     id="question-loader"
                     class="lds-ellipsis"
@@ -279,9 +299,26 @@
                         >
                         <div id="explanation-text" class="question-data"></div>
                     </div>
+                    <div id="question-actions-mobile">
+                        <button
+                            class="btn btn-outline-primary btn-action"
+                            type="button"
+                            id="mark-used-button-mobile"
+                            style="display: none"
+                        >
+                            Mark Used
+                        </button>
+                        <button
+                            class="btn btn-outline-primary btn-action"
+                            type="button"
+                            id="get-question-button"
+                        >
+                            Get Question
+                        </button>
+                    </div>
                 </div>
                 <div id="chart-container">
-                    <canvas id="myChart"></canvas>
+                    <canvas id="pointCountChart"></canvas>
                 </div>
             </div>
             <div id="quick-question-count-bar"></div>
