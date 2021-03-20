@@ -163,13 +163,12 @@ document.addEventListener('click', function (event) {
         clearQuestion();
         ERROR_COUNT = 0;
 
-        document
-            .getElementById('quick-question-count-bar')
-            .getElementsByClassName('active')[0]
-            ?.classList.remove('active');
-        document
-            .getElementById('point-count-' + event.target.id)
-            ?.classList.add('active');
+        // FUCK BOOTSTRAP RADIO BUTTON GROUPS
+        // APPARENTLY ATTRIBUTE:CHECKED IS NOT THE SAME AS .CHECKED
+        document.querySelector(
+            "#point-select input[id='radio_" + event.target.id + "']"
+        ).checked = true;
+
         loadQuestion(event.target.id);
     }
 
@@ -377,6 +376,7 @@ function loadCategories(masterCatID) {
             );
             let clone = catListItemTemplate.cloneNode(true);
             clone.id = cat.id;
+            clone.setAttribute('data-cat-name', cat.data().name);
             clone.innerHTML = cat.data().name;
             clone.style.display = 'block';
             catList.appendChild(clone);
@@ -414,7 +414,7 @@ function getPointCounts(catID = null, used = null) {
             .where('category_id', '==', catID)
             .where('used', '==', used);
 
-        countQuery
+        return countQuery
             .get()
             .then((questions) => {
                 let pointsTupleCount = {};
@@ -694,6 +694,8 @@ function loadCountGraph(masterCatID = null) {
                     fullDataset.push(pointDataset);
                 });
 
+                fullDataset.sort((a, b) => (a.label > b.label ? 1 : -1));
+
                 populateCountGraph(categories, fullDataset);
             })
             .catch((err) => {
@@ -751,11 +753,17 @@ function populateCountGraph(categories, preformattedData) {
         type: 'horizontalBar',
         options: {
             maintainAspectRatio: false,
+            legend: {
+                labels: {
+                    fontColor: 'white',
+                },
+            },
             scales: {
                 yAxes: [
                     {
                         stacked: true,
                         ticks: {
+                            fontColor: 'white',
                             reverse: false,
                             beginAtZero: true,
                         },
@@ -765,6 +773,7 @@ function populateCountGraph(categories, preformattedData) {
                     {
                         stacked: true,
                         ticks: {
+                            fontColor: 'white',
                             reverse: true,
                             beginAtZero: true,
                         },
@@ -784,12 +793,24 @@ function populateCountGraph(categories, preformattedData) {
         var activePoint = pointCountChart.getElementAtEvent(evt)[0];
         var data = activePoint._chart.data;
         var datasetIndex = activePoint._datasetIndex;
-        var pointValue = data.datasets[datasetIndex].label;
+        var pointValue = parseFloat(data.datasets[datasetIndex].label);
         var value = data.datasets[datasetIndex].data[activePoint._index];
         var category = data.labels[activePoint._index];
 
-        console.log('point value: ' + pointValue);
-        console.log('category: ' + category);
+        let selectingCat = document.querySelectorAll(
+            '[data-cat-name="' + category + '"]'
+        )[0];
+        document.getElementById('category-select-button').innerHTML = category;
+        document
+            .getElementById('category-select-button')
+            .setAttribute('data-cat-id', selectingCat.id);
+
+        getPointCounts().then(function () {
+            let checkInput = document.querySelectorAll(
+                '[for="radio_' + pointValue + '"]'
+            )[0];
+            eventFire(checkInput, 'click');
+        });
     };
 }
 
@@ -829,5 +850,15 @@ function binaryInsert(value, array, startVal, endVal) {
     if (value > array[m]) {
         binaryInsert(value, array, m + 1, end);
         return;
+    }
+}
+
+function eventFire(el, etype) {
+    if (el.fireEvent) {
+        el.fireEvent('on' + etype);
+    } else {
+        var evObj = document.createEvent('Events');
+        evObj.initEvent(etype, true, false);
+        el.dispatchEvent(evObj);
     }
 }
