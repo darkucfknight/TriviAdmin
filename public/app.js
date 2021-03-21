@@ -63,6 +63,11 @@ document.addEventListener('click', function (event) {
     if (event.target.matches('.master-cat-list-item')) {
         clearQuestion();
         ERROR_COUNT = 0;
+
+        document.getElementById('mark-used-button-mobile').style.display =
+            'flex';
+        document.getElementById('mark-used-button').style.display = 'flex';
+
         let masterCatSelectButton = document.getElementById(
             'mastercat-select-button'
         );
@@ -85,6 +90,10 @@ document.addEventListener('click', function (event) {
     if (event.target.matches('.mastercat-list-item')) {
         ERROR_COUNT = 0;
         clearQuestion();
+
+        document.getElementById('mark-used-button').style.display = 'none';
+        document.getElementById('mark-used-button-mobile').style.display =
+            'none';
 
         let mastercatSelectButton = document.getElementById(
             'mastercat-select-button'
@@ -169,14 +178,40 @@ document.addEventListener('click', function (event) {
             "#point-select input[id='radio_" + event.target.id + "']"
         ).checked = true;
 
+        document
+            .querySelectorAll('.q-count.active')[0]
+            ?.classList.remove('active');
+
+        document
+            .getElementById('point-count-' + event.target.id)
+            .classList.add('active');
+
         loadQuestion(event.target.id);
     }
 
     // Get Question Button
-    if (event.target.matches('#get-question-button')) {
+    if (
+        event.target.matches('#get-question-button') ||
+        event.target.matches('#get-question-button-mobile')
+    ) {
         clearQuestion();
         ERROR_COUNT = 0;
         loadQuestion();
+    }
+
+    // Show/hide point count chart
+    if (event.target.matches('#show-chart-button')) {
+        let chart = document.getElementById('chart-container');
+        if (chart.classList.contains('animated')) {
+            event.target.classList.remove('rotate');
+            animateCSS('#chart-container', 'fadeOutDown').then((message) => {
+                chart.classList.remove('animated');
+            });
+        } else {
+            chart.classList.add('animated');
+            animateCSS('#chart-container', 'fadeInUp');
+            event.target.classList.add('rotate');
+        }
     }
 
     // Mark Used Button
@@ -247,9 +282,38 @@ function handleLogout() {
     document.getElementById('sign-in-button').style.backgroundImage = 'none';
 }
 
-// TODO
+// || Switch between host and plan mode
 function switchMode(mode) {
     console.log('switch mode: ' + mode);
+    if (mode == 'host') {
+        document
+            .getElementById('question-data-section')
+            .classList.remove('planning');
+
+        // Hide plus buttons
+        document.querySelectorAll('.add-option-button').forEach((button) => {
+            button.style.display = 'none';
+        });
+
+        document.getElementById('create-modify-button-mobile').style.display =
+            'none';
+        document.getElementById('get-question-button-mobile').style.display =
+            'block';
+    } else {
+        document
+            .getElementById('question-data-section')
+            .classList.add('planning');
+
+        // Show plus buttons
+        document.querySelectorAll('.add-option-button').forEach((button) => {
+            button.style.display = 'flex';
+        });
+
+        document.getElementById('create-modify-button-mobile').style.display =
+            'block';
+        document.getElementById('get-question-button-mobile').style.display =
+            'none';
+    }
 }
 
 // function updateQuestion(e) {
@@ -861,4 +925,93 @@ function eventFire(el, etype) {
         evObj.initEvent(etype, true, false);
         el.dispatchEvent(evObj);
     }
+}
+
+const animateCSS = (element, animation, prefix = 'animate__') =>
+    // We create a Promise and return it
+    new Promise((resolve, reject) => {
+        const animationName = `${prefix}${animation}`;
+        const node = document.querySelector(element);
+
+        node.classList.add(`${prefix}animated`, animationName);
+
+        // When the animation ends, we clean the classes and resolve the Promise
+        function handleAnimationEnd(event) {
+            event.stopPropagation();
+            node.classList.remove(`${prefix}animated`, animationName);
+            resolve('Animation ended');
+        }
+
+        node.addEventListener('animationend', handleAnimationEnd, {
+            once: true,
+        });
+    });
+
+// || Handle Chart swipers
+const chartContainer = document.querySelector('#chart-container');
+const showChartButton = document.getElementById('show-chart-button');
+
+document.addEventListener('touchstart', handleTouchStart, false);
+document.addEventListener('touchmove', handleTouchMove, false);
+
+var xDown = null;
+var yDown = null;
+
+function getTouches(evt) {
+    return (
+        evt.touches || // browser API
+        evt.originalEvent.touches
+    ); // jQuery
+}
+
+function handleTouchStart(evt) {
+    const firstTouch = getTouches(evt)[0];
+    xDown = firstTouch.clientX;
+    yDown = firstTouch.clientY;
+}
+
+function handleTouchMove(evt) {
+    if (!xDown || !yDown) {
+        return;
+    }
+
+    var xUp = evt.touches[0].clientX;
+    var yUp = evt.touches[0].clientY;
+
+    var xDiff = xDown - xUp;
+    var yDiff = yDown - yUp;
+
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+        /*most significant*/
+        if (xDiff > 0) {
+            /* left swipe */
+            showChartButton.classList.remove('rotate');
+            animateCSS('#chart-container', 'fadeOutLeft').then((message) => {
+                chartContainer.classList.remove('animated');
+            });
+        } else {
+            /* right swipe */
+            showChartButton.classList.remove('rotate');
+            animateCSS('#chart-container', 'fadeOutRight').then((message) => {
+                chartContainer.classList.remove('animated');
+            });
+        }
+    } else {
+        if (yDiff > 0) {
+            /* up swipe */
+            showChartButton.classList.remove('rotate');
+            animateCSS('#chart-container', 'fadeOutUp').then((message) => {
+                chartContainer.classList.remove('animated');
+            });
+        } else {
+            /* down swipe */
+            showChartButton.classList.remove('rotate');
+            animateCSS('#chart-container', 'fadeOutDown').then((message) => {
+                chartContainer.classList.remove('animated');
+            });
+        }
+    }
+    /* reset values */
+    xDown = null;
+    yDown = null;
 }

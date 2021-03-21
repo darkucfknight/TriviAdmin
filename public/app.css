@@ -23,6 +23,12 @@ body {
     font-size: 0.75em;
     text-transform: lowercase;
 }
+.material-icons {
+    position: relative;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 2rem;
+}
 
 /* || NAVBAR */
 .top-nav {
@@ -60,55 +66,11 @@ body {
 }
 
 /* || Bottom bar (mobile) */
-.bottombar {
-    position: fixed;
-    z-index: 999;
-    align-items: flex-start;
+#show-chart-button {
+    color: #232323;
 }
-.bottombar > ul {
-    margin: 0rem 0rem;
-}
-.material-icons {
-    position: relative;
-    text-align: center;
-    vertical-align: middle;
-    font-size: 2rem;
-}
-
-nav.bottombar ul,
-nav.bottombar li {
-    outline: 0;
-    margin: 0;
-    padding: 0;
-}
-.bottombar li:hover > a,
-nav.bottombar li.active > a {
-    color: #fff;
-    background-color: #5573f3;
-}
-nav.bottombar li.selected > a {
-    color: #fff;
-}
-
-nav.bottombar li.selected .material-icons {
-    color: #5573f3;
-}
-
-nav.bottombar li.selected:hover .material-icons {
-    color: #fff;
-}
-
-.bottombar .nav-text,
-.bottombar li > a {
-    font-family: 'Roboto', sans-serif;
-}
-
-.bottombar li > a {
-    border-collapse: collapse;
-    border-spacing: 0;
-    color: white;
-    font-size: 1.03rem;
-    text-decoration: none;
+#show-chart-button:hover {
+    color: #aaaaaa;
 }
 
 /* || Filter bar */
@@ -131,6 +93,10 @@ nav.bottombar li.selected:hover .material-icons {
 #filter-bar .point-list-item.disabled {
     text-decoration: line-through;
     color: gray;
+}
+
+#filter-bar .full-btn-group {
+    display: flex;
 }
 
 /* || Quick Question Count Bar */
@@ -162,6 +128,7 @@ nav.bottombar li.selected:hover .material-icons {
     height: 100%;
     flex-direction: column;
     overflow-y: scroll;
+    word-break: break-word;
 }
 #question-data-section::-webkit-scrollbar {
     width: 0; /* Remove scrollbar space */
@@ -187,6 +154,16 @@ nav.bottombar li.selected:hover .material-icons {
     color: #5573f3 !important;
     border-color: #5573f3 !important;
     background-color: transparent !important;
+}
+
+#question-data-section .plan-group {
+    display: none;
+}
+#question-data-section.planning .plan-group {
+    display: block;
+}
+#question-data-section.planning .question-data {
+    display: none;
 }
 
 /* Cat Count Chart */
@@ -215,6 +192,9 @@ nav.bottombar li.selected:hover .material-icons {
     #filter-bar > .question-action {
         display: flex;
     }
+    #show-chart-button {
+        display: none;
+    }
 }
 /* MOBILE */
 @media (max-width: 35em) {
@@ -222,7 +202,16 @@ nav.bottombar li.selected:hover .material-icons {
         display: flex;
     }
     #chart-container {
-        display: none;
+        visibility: hidden;
+        position: fixed;
+        width: 95%;
+        height: 50%;
+        top: 35%;
+        z-index: 1000;
+        padding: 5px;
+        border-radius: 20px;
+        background-color: #232323;
+        animation-duration: 0.75s;
     }
     #question-data-section {
         width: 100%;
@@ -235,6 +224,16 @@ nav.bottombar li.selected:hover .material-icons {
     #filter-bar > .question-action {
         display: none;
     }
+}
+
+/* || Animation */
+.animated {
+    visibility: visible !important;
+}
+
+.rotate {
+    -webkit-transform: rotateX(180deg);
+    transform: rotateX(180deg);
 }
 
 /* || TOGGLE */
@@ -486,4 +485,43 @@ input:checked + .slider:before {
         bottom: 0;
         opacity: 0;
     }
+}
+
+/* || Textarea styles from https://codepen.io/mmarsaustin/details/PobVBoJ*/
+textarea {
+    resize: none;
+}
+textarea {
+    background: none;
+    color: #c6c6c6;
+    font-size: 18px;
+    padding: 10px 10px 10px 5px;
+    display: block;
+    width: 90%;
+    height: 48px;
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid #c6c6c6;
+}
+textarea:focus {
+    outline: none;
+}
+textarea:focus ~ .bar:before {
+    width: 90%;
+}
+
+.bar {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+.bar:before {
+    content: '';
+    height: 2px;
+    width: 0;
+    bottom: 0px;
+    position: absolute;
+    background: #fff;
+    transition: 300ms ease all;
+    left: 0%;
 }

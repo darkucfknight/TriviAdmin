@@ -36,6 +36,10 @@
             integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w=="
             crossorigin="anonymous"
         />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+        />
         <link rel="stylesheet" type="text/css" href="app.css" />
     </head>
     <body>
@@ -134,11 +138,22 @@
                     <label for="master-cat-select" class="little-label"
                         >master category</label
                     >
-                    <div
-                        id="master-cat-select"
-                        class="btn-group"
-                        role="group"
-                    ></div>
+                    <div class="full-btn-group">
+                        <div
+                            id="master-cat-select"
+                            class="btn-group"
+                            role="group"
+                        ></div>
+                        <button
+                            class="btn btn-outline-primary add-option-button"
+                            id="add-mastercat-button"
+                            type="button"
+                            style="display: none"
+                        >
+                            +
+                        </button>
+                    </div>
+
                     <input
                         type="radio"
                         class="btn-check"
@@ -190,26 +205,36 @@
                     <label for="category-select-button" class="little-label"
                         >category</label
                     >
-                    <div class="dropdown">
+                    <div class="full-btn-group">
+                        <div class="dropdown">
+                            <button
+                                class="btn btn-outline-primary dropdown-toggle"
+                                type="button"
+                                id="category-select-button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+                                Select
+                            </button>
+                            <ul
+                                id="category-list"
+                                class="dropdown-menu"
+                                aria-labelledby="category-select-button"
+                            ></ul>
+                            <li
+                                id="category-list-item-template"
+                                class="dropdown-item category-list-item"
+                                style="display: none"
+                            ></li>
+                        </div>
                         <button
-                            class="btn btn-outline-primary dropdown-toggle"
+                            class="btn btn-outline-primary add-option-button"
+                            id="add-category-button"
                             type="button"
-                            id="category-select-button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                        >
-                            Select
-                        </button>
-                        <ul
-                            id="category-list"
-                            class="dropdown-menu"
-                            aria-labelledby="category-select-button"
-                        ></ul>
-                        <li
-                            id="category-list-item-template"
-                            class="dropdown-item category-list-item"
                             style="display: none"
-                        ></li>
+                        >
+                            +
+                        </button>
                     </div>
                 </div>
                 <!-- Point value List -->
@@ -217,7 +242,22 @@
                     <label for="point-select" class="little-label"
                         >point value</label
                     >
-                    <div id="point-select" class="btn-group" role="group"></div>
+                    <div class="full-btn-group">
+                        <div
+                            id="point-select"
+                            class="btn-group"
+                            role="group"
+                        ></div>
+                        <button
+                            class="btn btn-outline-primary add-option-button"
+                            id="add-point-button"
+                            type="button"
+                            style="display: none"
+                        >
+                            +
+                        </button>
+                    </div>
+
                     <input
                         type="radio"
                         class="btn-check"
@@ -271,6 +311,15 @@
                             >Question</label
                         >
                         <div id="question-text" class="question-data"></div>
+                        <div class="plan-group">
+                            <textarea
+                                id="question-input"
+                                type="text"
+                                autocomplete="off"
+                            ></textarea
+                            ><span class="highlight"></span
+                            ><span class="bar"></span>
+                        </div>
                     </div>
 
                     <div class="question-data-group">
@@ -278,6 +327,15 @@
                             >Multiple Choice</label
                         >
                         <div id="multi-choice-text" class="question-data"></div>
+                        <div class="plan-group">
+                            <textarea
+                                id="chioces-input"
+                                type="text"
+                                autocomplete="off"
+                            ></textarea
+                            ><span class="highlight"></span
+                            ><span class="bar"></span>
+                        </div>
                     </div>
 
                     <div class="question-data-group">
@@ -285,6 +343,15 @@
                             >Answer</label
                         >
                         <div id="answer-text" class="question-data"></div>
+                        <div class="plan-group">
+                            <textarea
+                                id="answer-input"
+                                type="text"
+                                autocomplete="off"
+                            ></textarea
+                            ><span class="highlight"></span
+                            ><span class="bar"></span>
+                        </div>
                     </div>
 
                     <div class="question-data-group">
@@ -292,12 +359,30 @@
                             >Source</label
                         >
                         <div id="source-text" class="question-data"></div>
+                        <div class="plan-group">
+                            <textarea
+                                id="explanation-input"
+                                type="text"
+                                autocomplete="off"
+                            ></textarea
+                            ><span class="highlight"></span
+                            ><span class="bar"></span>
+                        </div>
                     </div>
                     <div class="question-data-group">
                         <label class="little-label" for="explanation-text"
                             >Explanation</label
                         >
                         <div id="explanation-text" class="question-data"></div>
+                        <div class="plan-group">
+                            <textarea
+                                id="plan-input"
+                                type="text"
+                                autocomplete="off"
+                            ></textarea
+                            ><span class="highlight"></span
+                            ><span class="bar"></span>
+                        </div>
                     </div>
                     <div id="question-actions-mobile">
                         <button
@@ -308,12 +393,23 @@
                         >
                             Mark Used
                         </button>
+                        <span id="show-chart-button" class="material-icons">
+                            keyboard_arrow_up
+                        </span>
                         <button
                             class="btn btn-outline-primary btn-action"
                             type="button"
-                            id="get-question-button"
+                            id="get-question-button-mobile"
                         >
                             Get Question
+                        </button>
+                        <button
+                            class="btn btn-outline-primary btn-action"
+                            type="button"
+                            id="create-modify-button-mobile"
+                            style="display: none"
+                        >
+                            Create
                         </button>
                     </div>
                 </div>
