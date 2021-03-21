@@ -15,17 +15,18 @@ service cloud.firestore {
 		function canModifyMaster() {
 			return (request.auth != null && resource.data.owner_id == request.auth.uid)
 		}
-      allow read: if
+      	allow read: if
       		publiclyAvailable(resource.data.public)
 			|| canModifyMaster();
-		allow create, update, delete: if canModifyMaster();
+		allow update, delete: if canModifyMaster();
+    	allow create: if request.auth != null;
     }
     match /categories/{category} {
     	allow read: if
       		publiclyAvailable(get(/databases/$(database)/documents/master_categories/$(resource.data.master_category_id)).data.public)
 					|| authorizedMaster();
-		allow create, update, delete: if authorizedMaster();
-			
+		allow update, delete: if authorizedMaster();
+      	allow create: if get(/databases/$(database)/documents/master_categories/$(request.resource.data.master_category_id)).data.owner_id == request.auth.uid	
     }
 	match /questions/{question} {
 		function questionPubliclyAvailable(masterCatPublic) {

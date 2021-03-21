@@ -166,10 +166,35 @@ body {
     display: none;
 }
 
-/* Cat Count Chart */
+/* || Input Modal */
+#public-radio-set {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+/* || Cat Count Chart */
 #chart-container {
     width: 50%;
     height: 100%;
+}
+
+/* Question data table */
+#questions-table-section {
+    max-height: 45%;
+    color: white;
+    border-top: 1px solid white;
+}
+#questions-table {
+    color: white;
+}
+#questions-table th {
+    color: #5573f3;
+}
+.dataTable-sorter::before {
+    border-top: 4px solid #5573f3;
+}
+.dataTable-sorter::after {
+    border-bottom: 4px solid #5573f3;
 }
 
 /* Desktop */
@@ -221,7 +246,13 @@ body {
         flex-direction: row;
         justify-content: space-between;
     }
+    #create-modify-button-mobile {
+        min-width: 95px;
+    }
     #filter-bar > .question-action {
+        display: none;
+    }
+    #questions-table-section {
         display: none;
     }
 }

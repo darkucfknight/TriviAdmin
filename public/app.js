@@ -1,5 +1,6 @@
 let CURRENT_USER_ID = null;
 let CURRENT_QUESTION_ID = null;
+let CURRENT_MODE = 'host';
 let ERROR_COUNT = 0;
 let db = null;
 let masterCatRef = null;
@@ -11,6 +12,10 @@ let pointCountChart = null;
 const SIGN_OUT_MODAL = new bootstrap.Modal(
     document.getElementById('sign-out-confirm-modal')
 );
+
+const INPUT_MODAL = new bootstrap.Modal(document.getElementById('input-modal'));
+
+var table = new DataTable('#questions-table');
 
 // || On First Load
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -164,7 +169,10 @@ document.addEventListener('click', function (event) {
             event.target.id,
             document.getElementById('used-toggle').checked
         );
-        loadQuestion(null);
+
+        if (CURRENT_MODE == 'host') {
+            loadQuestion(null);
+        }
     }
 
     // Point Val Select
@@ -184,9 +192,11 @@ document.addEventListener('click', function (event) {
 
         document
             .getElementById('point-count-' + event.target.id)
-            .classList.add('active');
+            ?.classList.add('active');
 
-        loadQuestion(event.target.id);
+        if (CURRENT_MODE == 'host') {
+            loadQuestion(event.target.id);
+        }
     }
 
     // Get Question Button
@@ -221,7 +231,82 @@ document.addEventListener('click', function (event) {
     ) {
         markUsed();
     }
+
+    // Add Mastercat button
+    if (event.target.matches('#add-mastercat-button')) {
+        document.getElementById('input-modal-label').innerHTML =
+            'Create New Master Category';
+        document
+            .getElementById('input-modal-submit')
+            .setAttribute('data-type', 'master');
+        document.getElementById('public-radio-set').style.display = 'flex';
+    }
+
+    // Add category button
+    if (event.target.matches('#add-category-button')) {
+        document.getElementById('input-modal-label').innerHTML =
+            'Create New Category';
+        document
+            .getElementById('input-modal-submit')
+            .setAttribute('data-type', 'category');
+    }
+
+    // Add point value button
+    if (event.target.matches('#add-point-button')) {
+        document.getElementById('input-modal-label').innerHTML =
+            'Create New Point Value';
+        document
+            .getElementById('input-modal-submit')
+            .setAttribute('data-type', 'point');
+    }
+
+    // Input modal submit
+    if (event.target.matches('#input-modal-submit')) {
+        let dataType = document
+            .getElementById('input-modal-submit')
+            .getAttribute('data-type');
+
+        let value = document.getElementById('input-modal-value').value;
+        let checkValue = document.querySelectorAll(
+            '#public-radio-set input:checked'
+        )[0]?.id;
+
+        INPUT_MODAL.hide();
+        document.getElementById('input-modal-value').value = '';
+
+        switch (dataType) {
+            case 'master':
+                addMasterCat(value, checkValue);
+                break;
+            case 'category':
+                addCategory(value);
+                break;
+            case 'point':
+                addPointValue(value);
+                break;
+        }
+    }
+
+    if (
+        event.target.matches('#create-modify-button') ||
+        event.target.matches('#create-modify-button-mobile')
+    ) {
+        validateQuestionData();
+    }
 });
+
+// Handle modal events
+document
+    .getElementById('input-modal')
+    .addEventListener('hidden.bs.modal', function (event) {
+        document.getElementById('public-radio-set').style.display = 'none';
+    });
+
+document
+    .getElementById('input-modal')
+    .addEventListener('shown.bs.modal', function (event) {
+        document.getElementById('input-modal-value').focus();
+    });
 
 function handleProfileClick() {
     if (CURRENT_USER_ID === null) {
@@ -284,7 +369,7 @@ function handleLogout() {
 
 // || Switch between host and plan mode
 function switchMode(mode) {
-    console.log('switch mode: ' + mode);
+    CURRENT_MODE = mode;
     if (mode == 'host') {
         document
             .getElementById('question-data-section')
@@ -295,9 +380,15 @@ function switchMode(mode) {
             button.style.display = 'none';
         });
 
+        // Show hosting button, hide planning button
         document.getElementById('create-modify-button-mobile').style.display =
             'none';
+        document.getElementById('create-modify-button').style.display = 'none';
         document.getElementById('get-question-button-mobile').style.display =
+            'block';
+        document.getElementById('get-question-button').style.display = 'block';
+
+        document.getElementById('public-mastercat-dropdown').style.display =
             'block';
     } else {
         document
@@ -309,21 +400,24 @@ function switchMode(mode) {
             button.style.display = 'flex';
         });
 
+        // Show planning button, hide hosting button
         document.getElementById('create-modify-button-mobile').style.display =
             'block';
+        document.getElementById('create-modify-button').style.display = 'block';
         document.getElementById('get-question-button-mobile').style.display =
+            'none';
+        document.getElementById('get-question-button').style.display = 'none';
+
+        document.querySelectorAll('.point-list-item').forEach((item) => {
+            item.classList.remove('disabled');
+        });
+
+        document.getElementById('public-mastercat-dropdown').style.display =
             'none';
     }
 }
 
-// function updateQuestion(e) {
-//     const db = firebase.firestore();
-//     const myQuestion = db.collection('questions').doc('IAI77NovNZ1iEpXgghtQ');
-//     myQuestion.update({ question: e.target.value });
-// }
-
 // Load master categories
-// TODO add user id param for per-user loading
 function loadMasterCats() {
     const masterCatList = document.getElementById('master-cat-select');
     masterCatList.innerHTML = '';
@@ -375,7 +469,7 @@ function loadMasterCats() {
             '#public-mastercat-dropdown-template'
         );
         let listClone = masterCatListTemplate.cloneNode(true);
-        listClone.id = '';
+        listClone.id = 'public-mastercat-dropdown';
         listClone.style.display = 'block';
         const publicMasterCatList = listClone.getElementsByTagName('ul')[0];
 
@@ -469,9 +563,12 @@ function getPointCounts(catID = null, used = null) {
 
     if (masterCatID != null && catID != null && used != null) {
         const pointValLabels = document.querySelectorAll('.point-list-item');
-        pointValLabels.forEach((label) => {
-            label.classList.add('disabled');
-        });
+
+        if (CURRENT_MODE == 'host') {
+            pointValLabels.forEach((label) => {
+                label.classList.add('disabled');
+            });
+        }
 
         let countQuery = questionRef
             .where('master_category_id', '==', masterCatID)
@@ -617,6 +714,27 @@ function loadQuestion(pointVal = null) {
     }
 }
 
+function getCurrentMasterCatID() {
+    masterCatID = document.querySelector('input[name="master-cat"]:checked')
+        ?.value;
+    if (!masterCatID) {
+        masterCatID = document
+            .getElementById('mastercat-select-button')
+            .getAttribute('data-mastercat-id');
+    }
+    return masterCatID;
+}
+
+function getCurrentMasterCatName() {
+    masterCatName = document.querySelector('input[name="master-cat"]:checked')
+        ?.innerHTML;
+    if (!masterCatName) {
+        masterCatName = document.getElementById('mastercat-select-button')
+            .innerHTML;
+    }
+    return masterCatName;
+}
+
 function handleRetrieveError(err) {
     if (err.message.includes('permission')) {
         ERROR_COUNT += 1;
@@ -711,15 +829,137 @@ function showSnackbar(text) {
 //     });
 // }
 
+function addMasterCat(masterName, publicVal) {
+    masterCatRef
+        .add({
+            name: masterName,
+            owner_id: CURRENT_USER_ID,
+            point_values: [],
+            public: publicVal,
+        })
+        .then(function (message) {
+            showSnackbar('Master category succesfully added');
+            loadMasterCats();
+        });
+}
+
+function addCategory(catName) {
+    let masterCatID = getCurrentMasterCatID();
+    if (catName.length == 0) {
+        showSnackbar('Invalid entry. No input recieved for name.');
+    } else if (!masterCatID) {
+        showSnackbar('Invalid entry. No master cat selected.');
+    } else {
+        catRef
+            .add({
+                name: catName,
+                master_category_id: masterCatID,
+            })
+            .then((message) => {
+                showSnackbar('Category created.');
+                loadCategories(masterCatID);
+            });
+    }
+}
+
+function addPointValue(pointVal) {
+    let masterCatID = getCurrentMasterCatID();
+    if (pointVal.length == 0 || isNaN(pointVal)) {
+        showSnackbar(
+            'Invalid entry. No input recieved for value or value is not a number.'
+        );
+    } else if (!masterCatID) {
+        showSnackbar('Invalid entry. No master cat selected.');
+    } else {
+        masterCatRef
+            .doc(masterCatID)
+            .update({
+                point_values: firebase.firestore.FieldValue.arrayUnion(
+                    pointVal
+                ),
+            })
+            .then((message) => {
+                showSnackbar('Point value added.');
+                loadMasterCats();
+            });
+    }
+}
+
+function validateQuestionData() {
+    let valid = true;
+    let question = document.getElementById('question-input').value;
+    if (!question || question.length == 0) {
+        document.getElementById('question-input').classList.add('invalid');
+        valid = false;
+    }
+    let answer = document.getElementById('answer-input').value;
+    if (!answer || answer.length == 0) {
+        document.getElementById('answer-input').classList.add('invalid');
+        valid = false;
+    }
+    let multipleChoice = document.getElementById('choices-input').value;
+    let explanation = document.getElementById('explanation-input').value;
+    let source = document.getElementById('source-input').value;
+    let category = document.getElementById('category-select-button').innerHTML;
+    let categoryID = document
+        .getElementById('category-select-button')
+        .getAttribute('data-cat-id');
+    if (!categoryID || categoryID == 'false') {
+        document
+            .getElementById('category-select-button')
+            .classList.add('invalid');
+        valid = false;
+    }
+    let masterCategory = getCurrentMasterCatName();
+    let masterCategoryID = getCurrentMasterCatID();
+    if (!masterCategoryID || masterCategoryID.length == 0) {
+        document.getElementById('master-cat-select').classList.add('invalid');
+        valid = false;
+    }
+    let pointVal = document.querySelector('input[name="point-val"]:checked')
+        ?.value;
+    if (!pointVal) {
+        document.getElementById('point-select').classList.add('invalid');
+        valid = false;
+    }
+
+    if (!valid) {
+        showSnackbar(
+            'Invalid entry. Please correct highlighted items and try again.'
+        );
+    } else {
+        let data = {
+            question: question,
+            answer: answer,
+            multiple_choice: multipleChoice,
+            explanation: explanation,
+            source: source,
+            category: category,
+            category_id: categoryID,
+            master_category: masterCategory,
+            master_category_id: masterCategoryID,
+            used: false,
+            points: parseFloat(pointVal),
+        };
+        createQuestion(data);
+    }
+}
+
+function createQuestion(qData) {
+    questionRef.add(qData).then((doc) => {
+        loadCountGraph();
+        showSnackbar('Question successfully created');
+        document
+            .querySelectorAll('#question-data-section textarea')
+            .forEach((input) => {
+                input.value = '';
+            });
+    });
+}
+
 function loadCountGraph(masterCatID = null) {
     if (!masterCatID) {
-        masterCatID = document.querySelector('input[name="master-cat"]:checked')
-            ?.value;
-        if (!masterCatID) {
-            masterCatID = document
-                .getElementById('mastercat-select-button')
-                .getAttribute('data-mastercat-id');
-        }
+        masterCatID = getCurrentMasterCatID();
     }
     let usedStatus = document.getElementById('used-toggle').checked;
     let categories = [];
@@ -855,26 +1095,29 @@ function populateCountGraph(categories, preformattedData) {
     });
     ctx.onclick = function (evt) {
         var activePoint = pointCountChart.getElementAtEvent(evt)[0];
-        var data = activePoint._chart.data;
-        var datasetIndex = activePoint._datasetIndex;
-        var pointValue = parseFloat(data.datasets[datasetIndex].label);
-        var value = data.datasets[datasetIndex].data[activePoint._index];
-        var category = data.labels[activePoint._index];
+        var data = activePoint?._chart.data;
+        var datasetIndex = activePoint?._datasetIndex;
+        var pointValue = parseFloat(data?.datasets[datasetIndex]?.label);
+        var category = data?.labels[activePoint?._index];
 
-        let selectingCat = document.querySelectorAll(
-            '[data-cat-name="' + category + '"]'
-        )[0];
-        document.getElementById('category-select-button').innerHTML = category;
-        document
-            .getElementById('category-select-button')
-            .setAttribute('data-cat-id', selectingCat.id);
-
-        getPointCounts().then(function () {
-            let checkInput = document.querySelectorAll(
-                '[for="radio_' + pointValue + '"]'
+        if (category && pointValue) {
+            let selectingCat = document.querySelectorAll(
+                '[data-cat-name="' + category + '"]'
             )[0];
-            eventFire(checkInput, 'click');
-        });
+            document.getElementById(
+                'category-select-button'
+            ).innerHTML = category;
+            document
+                .getElementById('category-select-button')
+                .setAttribute('data-cat-id', selectingCat.id);
+
+            getPointCounts().then(function () {
+                let checkInput = document.querySelectorAll(
+                    '[for="radio_' + pointValue + '"]'
+                )[0];
+                eventFire(checkInput, 'click');
+            });
+        }
     };
 }
 

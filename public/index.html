@@ -40,6 +40,16 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
         />
+        <link
+            href="https://cdn.jsdelivr.net/npm/vanilla-datatables@latest/dist/vanilla-dataTables.min.css"
+            rel="stylesheet"
+            type="text/css"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/vanilla-datatables-editable@latest/datatable.editable.min.css"
+            rel="stylesheet"
+            type="text/css"
+        />
         <link rel="stylesheet" type="text/css" href="app.css" />
     </head>
     <body>
@@ -78,6 +88,94 @@
                             class="btn btn-danger"
                         >
                             Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div
+            class="modal fade"
+            id="input-modal"
+            tabindex="-1"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="input-modal-label">
+                            Create new
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="input-modal-value"
+                            />
+                        </div>
+                        <div
+                            id="public-radio-set"
+                            class="mb-3"
+                            style="display: none"
+                        >
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    type="radio"
+                                    name="radioPublic"
+                                    id="all"
+                                />
+                                <label class="form-check-label" for="all">
+                                    Public
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    type="radio"
+                                    name="radioPublic"
+                                    id="none"
+                                    checked
+                                />
+                                <label class="form-check-label" for="none">
+                                    Private
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    type="radio"
+                                    name="radioPublic"
+                                    id="used"
+                                    checked
+                                />
+                                <label class="form-check-label" for="used">
+                                    Used Public
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Close
+                        </button>
+                        <button
+                            id="input-modal-submit"
+                            type="button"
+                            class="btn btn-primary"
+                        >
+                            Add
                         </button>
                     </div>
                 </div>
@@ -147,6 +245,8 @@
                         <button
                             class="btn btn-outline-primary add-option-button"
                             id="add-mastercat-button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#input-modal"
                             type="button"
                             style="display: none"
                         >
@@ -230,6 +330,8 @@
                         <button
                             class="btn btn-outline-primary add-option-button"
                             id="add-category-button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#input-modal"
                             type="button"
                             style="display: none"
                         >
@@ -251,6 +353,8 @@
                         <button
                             class="btn btn-outline-primary add-option-button"
                             id="add-point-button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#input-modal"
                             type="button"
                             style="display: none"
                         >
@@ -292,6 +396,16 @@
                         Get Question
                     </button>
                 </div>
+                <div class="question-action">
+                    <button
+                        class="btn btn-outline-primary btn-action"
+                        type="button"
+                        id="create-modify-button"
+                        style="display: none"
+                    >
+                        Create Question
+                    </button>
+                </div>
 
                 <div
                     id="question-loader"
@@ -329,7 +443,7 @@
                         <div id="multi-choice-text" class="question-data"></div>
                         <div class="plan-group">
                             <textarea
-                                id="chioces-input"
+                                id="choices-input"
                                 type="text"
                                 autocomplete="off"
                             ></textarea
@@ -361,7 +475,7 @@
                         <div id="source-text" class="question-data"></div>
                         <div class="plan-group">
                             <textarea
-                                id="explanation-input"
+                                id="source-input"
                                 type="text"
                                 autocomplete="off"
                             ></textarea
@@ -376,7 +490,7 @@
                         <div id="explanation-text" class="question-data"></div>
                         <div class="plan-group">
                             <textarea
-                                id="plan-input"
+                                id="explanation-input"
                                 type="text"
                                 autocomplete="off"
                             ></textarea
@@ -417,6 +531,51 @@
                     <canvas id="pointCountChart"></canvas>
                 </div>
             </div>
+            <div id="questions-table-section" style="display: none">
+                <table id="questions-table" class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Ext.</th>
+                            <th>City</th>
+                            <th data-type="date" data-format="YYYY/MM/DD">
+                                Start Date
+                            </th>
+                            <th>Completion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Unity Pugh</td>
+                            <td>9958</td>
+                            <td>Curicó</td>
+                            <td>2005/02/11</td>
+                            <td>37%</td>
+                        </tr>
+                        <tr>
+                            <td>Theodore Duran</td>
+                            <td>8971</td>
+                            <td>Dhanbad</td>
+                            <td>1999/04/07</td>
+                            <td>97%</td>
+                        </tr>
+                        <tr>
+                            <td>Kylie Bishop</td>
+                            <td>3147</td>
+                            <td>Norman</td>
+                            <td>2005/09/08</td>
+                            <td>63%</td>
+                        </tr>
+                        <tr>
+                            <td>Willow Gilliam</td>
+                            <td>3497</td>
+                            <td>Amqui</td>
+                            <td>2009/29/11</td>
+                            <td>30%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <div id="quick-question-count-bar"></div>
         </div>
 
@@ -432,6 +591,14 @@
             src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"
             integrity="sha512-SuxO9djzjML6b9w9/I07IWnLnQhgyYVSpHZx0JV97kGBfTIsUYlWflyuW4ypnvhBrslz1yJ3R+S14fdCWmSmSA=="
             crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/vanilla-datatables@latest/dist/vanilla-dataTables.min.js"
+            type="text/javascript"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/vanilla-datatables-editable@latest/datatable.editable.min.js"
+            type="text/javascript"
         ></script>
         <script src="app.js"></script>
     </body>
