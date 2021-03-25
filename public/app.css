@@ -106,6 +106,7 @@ body {
 }
 #public-mastercat-dropdown.expanded {
     width: 100%;
+    overflow: visible;
 }
 
 #filter-bar .add-option-button {
@@ -189,7 +190,6 @@ body {
     border-color: #5573f3 !important;
     background-color: transparent !important;
 }
-
 #question-data-section .plan-group {
     width: 0%;
     height: 0;
