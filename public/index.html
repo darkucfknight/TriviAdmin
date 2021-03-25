@@ -242,16 +242,17 @@
                             class="btn-group"
                             role="group"
                         ></div>
-                        <button
-                            class="btn btn-outline-primary add-option-button"
-                            id="add-mastercat-button"
-                            data-bs-toggle="modal"
-                            data-bs-target="#input-modal"
-                            type="button"
-                            style="display: none"
-                        >
-                            +
-                        </button>
+                        <div class="expanded-container">
+                            <button
+                                class="btn btn-outline-primary add-option-button"
+                                id="add-mastercat-button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#input-modal"
+                                type="button"
+                            >
+                                +
+                            </button>
+                        </div>
                     </div>
 
                     <input
@@ -270,7 +271,7 @@
                     ></label>
                     <div
                         id="public-mastercat-dropdown-template"
-                        class="dropdown public-mastercat-dropdown"
+                        class="dropdown public-mastercat-dropdown expanded"
                         style="display: none"
                     >
                         <button
@@ -327,16 +328,17 @@
                                 style="display: none"
                             ></li>
                         </div>
-                        <button
-                            class="btn btn-outline-primary add-option-button"
-                            id="add-category-button"
-                            data-bs-toggle="modal"
-                            data-bs-target="#input-modal"
-                            type="button"
-                            style="display: none"
-                        >
-                            +
-                        </button>
+                        <div class="expanded-container">
+                            <button
+                                class="btn btn-outline-primary add-option-button"
+                                id="add-category-button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#input-modal"
+                                type="button"
+                            >
+                                +
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <!-- Point value List -->
@@ -350,16 +352,17 @@
                             class="btn-group"
                             role="group"
                         ></div>
-                        <button
-                            class="btn btn-outline-primary add-option-button"
-                            id="add-point-button"
-                            data-bs-toggle="modal"
-                            data-bs-target="#input-modal"
-                            type="button"
-                            style="display: none"
-                        >
-                            +
-                        </button>
+                        <div class="expanded-container">
+                            <button
+                                class="btn btn-outline-primary add-option-button"
+                                id="add-point-button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#input-modal"
+                                type="button"
+                            >
+                                +
+                            </button>
+                        </div>
                     </div>
 
                     <input
@@ -396,12 +399,11 @@
                         Get Question
                     </button>
                 </div>
-                <div class="question-action">
+                <div class="question-action" style="display: none">
                     <button
                         class="btn btn-outline-primary btn-action"
                         type="button"
                         id="create-modify-button"
-                        style="display: none"
                     >
                         Create Question
                     </button>

@@ -99,6 +99,40 @@ body {
     display: flex;
 }
 
+#public-mastercat-dropdown {
+    overflow: hidden;
+    width: 0%;
+    transition: all 0.4s ease;
+}
+#public-mastercat-dropdown.expanded {
+    width: 100%;
+}
+
+#filter-bar .add-option-button {
+    box-sizing: border-box;
+    width: 0%;
+    padding-right: 0;
+    padding-left: 0;
+    transition: all 0.4s ease;
+    /* transition-delay: 0.4s; */
+    overflow: hidden;
+}
+#filter-bar .add-option-button.expanded {
+    width: 100%;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+}
+
+#filter-bar .expanded-container {
+    overflow: hidden;
+    width: 0%;
+    transition: width 0.4s ease;
+    /* transition-delay: 0.2s; */
+}
+#filter-bar .expanded-container.expanded {
+    width: 100%;
+}
+
 /* || Quick Question Count Bar */
 #quick-question-count-bar {
     display: flex;
@@ -157,10 +191,14 @@ body {
 }
 
 #question-data-section .plan-group {
-    display: none;
+    width: 0%;
+    height: 0;
+    overflow: hidden;
+    transition: all 0.5s ease;
 }
 #question-data-section.planning .plan-group {
-    display: block;
+    width: 100%;
+    height: initial;
 }
 #question-data-section.planning .question-data {
     display: none;

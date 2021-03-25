@@ -377,19 +377,25 @@ function switchMode(mode) {
 
         // Hide plus buttons
         document.querySelectorAll('.add-option-button').forEach((button) => {
-            button.style.display = 'none';
+            button.classList.remove('expanded');
+            button.parentNode.classList.remove('expanded');
         });
+
+        document
+            .getElementById('public-mastercat-dropdown')
+            .classList.add('expanded');
 
         // Show hosting button, hide planning button
         document.getElementById('create-modify-button-mobile').style.display =
             'none';
-        document.getElementById('create-modify-button').style.display = 'none';
+        document.getElementById(
+            'create-modify-button'
+        ).parentNode.style.display = 'none';
         document.getElementById('get-question-button-mobile').style.display =
             'block';
-        document.getElementById('get-question-button').style.display = 'block';
-
-        document.getElementById('public-mastercat-dropdown').style.display =
-            'block';
+        document.getElementById(
+            'get-question-button'
+        ).parentNode.style.display = 'flex';
     } else {
         document
             .getElementById('question-data-section')
@@ -397,23 +403,29 @@ function switchMode(mode) {
 
         // Show plus buttons
         document.querySelectorAll('.add-option-button').forEach((button) => {
-            button.style.display = 'flex';
+            button.classList.add('expanded');
+            button.parentNode.classList.add('expanded');
         });
+
+        document
+            .getElementById('public-mastercat-dropdown')
+            .classList.remove('expanded');
 
         // Show planning button, hide hosting button
         document.getElementById('create-modify-button-mobile').style.display =
             'block';
-        document.getElementById('create-modify-button').style.display = 'block';
+        document.getElementById(
+            'create-modify-button'
+        ).parentNode.style.display = 'flex';
         document.getElementById('get-question-button-mobile').style.display =
             'none';
-        document.getElementById('get-question-button').style.display = 'none';
+        document.getElementById(
+            'get-question-button'
+        ).parentNode.style.display = 'none';
 
         document.querySelectorAll('.point-list-item').forEach((item) => {
             item.classList.remove('disabled');
         });
-
-        document.getElementById('public-mastercat-dropdown').style.display =
-            'none';
     }
 }
 
