@@ -18,6 +18,12 @@ body {
     padding-left: 2%;
     /* padding-right: 2%; */
 }
+.main-content.planning #question-section {
+    height: 53%;
+}
+.main-content.planning #questions-table-section {
+    height: 47%;
+}
 .little-label {
     color: white;
     font-size: 0.75em;
@@ -75,6 +81,7 @@ body {
 
 /* || Filter bar */
 #filter-bar {
+    animation: 0.5s ease-out 0s 1 slideInFromLeft;
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
@@ -157,6 +164,7 @@ body {
     height: 100%;
     padding: 0.75em;
     padding-top: 0.25em;
+    transition: all 0.5s ease;
 }
 #question-data-section {
     display: flex;
@@ -192,13 +200,11 @@ body {
 }
 #question-data-section .plan-group {
     width: 0%;
-    height: 0;
     overflow: hidden;
     transition: all 0.5s ease;
 }
 #question-data-section.planning .plan-group {
     width: 100%;
-    height: initial;
 }
 #question-data-section.planning .question-data {
     display: none;
@@ -218,9 +224,11 @@ body {
 
 /* Question data table */
 #questions-table-section {
-    max-height: 45%;
+    height: 0%;
+    overflow: hidden;
     color: white;
     border-top: 1px solid white;
+    transition: all 0.5s ease;
 }
 #questions-table {
     color: white;
@@ -233,6 +241,12 @@ body {
 }
 .dataTable-sorter::after {
     border-bottom: 4px solid #5573f3;
+}
+.dataTable-input {
+    background-color: transparent;
+    border: none;
+    color: white;
+    border-bottom: 1px solid white;
 }
 
 /* Desktop */
@@ -511,7 +525,7 @@ input:checked + .slider:before {
     animation: fadein 0.5s, fadeout 0.5s 2.5s;
 }
 
-/* Animations to fade the snackbar in and out */
+/* Animations */
 @-webkit-keyframes fadein {
     from {
         bottom: 0;
@@ -553,6 +567,15 @@ input:checked + .slider:before {
     to {
         bottom: 0;
         opacity: 0;
+    }
+}
+
+@keyframes slideInFromLeft {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(0);
     }
 }
 

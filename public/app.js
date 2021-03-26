@@ -15,7 +15,14 @@ const SIGN_OUT_MODAL = new bootstrap.Modal(
 
 const INPUT_MODAL = new bootstrap.Modal(document.getElementById('input-modal'));
 
-var table = new DataTable('#questions-table');
+var table = new DataTable('#questions-table', {
+    perPage: 5,
+    perPageSelect: false,
+    layout: {
+        top: '',
+        bottom: '{search}{pager}',
+    },
+});
 
 // || On First Load
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -396,6 +403,10 @@ function switchMode(mode) {
         document.getElementById(
             'get-question-button'
         ).parentNode.style.display = 'flex';
+
+        document
+            .querySelectorAll('.main-content')[0]
+            .classList.remove('planning');
     } else {
         document
             .getElementById('question-data-section')
@@ -426,6 +437,8 @@ function switchMode(mode) {
         document.querySelectorAll('.point-list-item').forEach((item) => {
             item.classList.remove('disabled');
         });
+
+        document.querySelectorAll('.main-content')[0].classList.add('planning');
     }
 }
 
@@ -1069,6 +1082,7 @@ function populateCountGraph(categories, preformattedData) {
         type: 'horizontalBar',
         options: {
             maintainAspectRatio: false,
+            responsive: true,
             legend: {
                 labels: {
                     fontColor: 'white',
