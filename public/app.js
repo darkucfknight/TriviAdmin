@@ -838,6 +838,8 @@ function markUsed(qID = null) {
             used: !currentUsedVal,
         })
         .then(() => {
+            loadCountGraph();
+            getPointCounts();
             showSnackbar(
                 'Question marked ' + (currentUsedVal ? 'unused.' : 'used.')
             );
@@ -1028,6 +1030,7 @@ function validateQuestionData() {
 function createQuestion(qData) {
     questionRef.add(qData).then((doc) => {
         loadCountGraph();
+        getPointCounts();
         showSnackbar('Question successfully created');
         document
             .querySelectorAll('#question-data-section textarea')
