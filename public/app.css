@@ -28,6 +28,7 @@ body {
     color: white;
     font-size: 0.75em;
     text-transform: lowercase;
+    transition: all 0.5s ease;
 }
 .material-icons {
     position: relative;
@@ -95,6 +96,7 @@ body {
     justify-content: flex-end;
     margin-left: 10px;
     margin-right: 10px;
+    margin-bottom: 5px;
 }
 
 #filter-bar .point-list-item.disabled {
@@ -199,11 +201,13 @@ body {
     background-color: transparent !important;
 }
 #question-data-section .plan-group {
+    margin-top: -5%;
     width: 0%;
     overflow: hidden;
     transition: all 0.5s ease;
 }
 #question-data-section.planning .plan-group {
+    margin-top: 0;
     width: 100%;
 }
 #question-data-section.planning .question-data {
@@ -616,4 +620,9 @@ textarea:focus ~ .bar:before {
     background: #fff;
     transition: 300ms ease all;
     left: 0%;
+}
+
+/* || Vanilla Datables Editable Styles */
+.datatable-editor-input {
+    color: black;
 }

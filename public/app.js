@@ -8,6 +8,7 @@ let catRef = null;
 let questionRef = null;
 let userRef = null;
 let pointCountChart = null;
+let editingQuestionData = null;
 
 const SIGN_OUT_MODAL = new bootstrap.Modal(
     document.getElementById('sign-out-confirm-modal')
@@ -15,14 +16,37 @@ const SIGN_OUT_MODAL = new bootstrap.Modal(
 
 const INPUT_MODAL = new bootstrap.Modal(document.getElementById('input-modal'));
 
-var table = new DataTable('#questions-table', {
-    perPage: 5,
+let QUESTION_TABLE = new DataTable('#questions-table', {
+    perPage: 3,
     perPageSelect: false,
     layout: {
         top: '',
         bottom: '{search}{pager}',
     },
+    plugins: {
+        editable: {
+            enabled: true,
+            contextMenu: false,
+        },
+    },
 });
+QUESTION_TABLE.columns().hide([0]);
+QUESTION_TABLE.on('editable.save.cell', function (newValue, oldValue, cell) {
+    editingQuestionData[editingQuestionData.indexOf(oldValue)] = newValue;
+    updateQuestion(editingQuestionData);
+});
+document
+    .querySelector('#questions-table')
+    .addEventListener('dblclick', function (e) {
+        let rowNum = e.target.parentNode.rowIndex - 1;
+        if (rowNum > -1) {
+            editingQuestionData = [].slice
+                .call(QUESTION_TABLE.data[rowNum].cells)
+                .map(function (cell) {
+                    return cell.textContent;
+                });
+        }
+    });
 
 // || On First Load
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -47,7 +71,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 });
 
 // || ALL CLICK EVENTS (single listener for optimization)
-// TODO Handle spam clicking
 document.addEventListener('click', function (event) {
     // Profile Icon
     if (
@@ -76,6 +99,12 @@ document.addEventListener('click', function (event) {
         clearQuestion();
         ERROR_COUNT = 0;
 
+        document
+            .querySelectorAll('.master-cat-list-item.active')[0]
+            ?.classList?.remove('active');
+
+        event.target.classList.add('active');
+
         document.getElementById('mark-used-button-mobile').style.display =
             'flex';
         document.getElementById('mark-used-button').style.display = 'flex';
@@ -102,6 +131,10 @@ document.addEventListener('click', function (event) {
     if (event.target.matches('.mastercat-list-item')) {
         ERROR_COUNT = 0;
         clearQuestion();
+
+        document
+            .querySelectorAll('.master-cat-list-item.active')[0]
+            ?.classList?.remove('active');
 
         document.getElementById('mark-used-button').style.display = 'none';
         document.getElementById('mark-used-button-mobile').style.display =
@@ -160,6 +193,10 @@ document.addEventListener('click', function (event) {
         window.setTimeout(function () {
             loadCountGraph();
         }, 500);
+
+        if (CURRENT_MODE == 'plan') {
+            populateQuestionTable();
+        }
     }
 
     // Category Select
@@ -179,6 +216,8 @@ document.addEventListener('click', function (event) {
 
         if (CURRENT_MODE == 'host') {
             loadQuestion(null);
+        } else {
+            populateQuestionTable();
         }
     }
 
@@ -203,6 +242,8 @@ document.addEventListener('click', function (event) {
 
         if (CURRENT_MODE == 'host') {
             loadQuestion(event.target.id);
+        } else {
+            populateQuestionTable();
         }
     }
 
@@ -408,6 +449,20 @@ function switchMode(mode) {
             .querySelectorAll('.main-content')[0]
             .classList.remove('planning');
     } else {
+        if (
+            document
+                .getElementById('mastercat-select-button')
+                .classList.contains('active')
+        ) {
+            document
+                .querySelectorAll('.master-cat-list-item')[0]
+                .classList.add('active');
+            eventFire(
+                document.querySelectorAll('.master-cat-list-item')[0],
+                'click'
+            );
+        }
+
         document
             .getElementById('question-data-section')
             .classList.add('planning');
@@ -982,6 +1037,19 @@ function createQuestion(qData) {
     });
 }
 
+function updateQuestion(qData) {
+    questionRef
+        .doc(qData[0])
+        .update({
+            question: qData[1],
+            answer: qData[2],
+            multiple_choice: qData[3],
+        })
+        .then((doc) => {
+            showSnackbar('Question successfully updated');
+        });
+}
+
 function loadCountGraph(masterCatID = null) {
     if (!masterCatID) {
         masterCatID = getCurrentMasterCatID();
@@ -1145,6 +1213,45 @@ function populateCountGraph(categories, preformattedData) {
             });
         }
     };
+}
+
+function populateQuestionTable() {
+    let masterCatID = getCurrentMasterCatID();
+    let catID = document
+        .getElementById('category-select-button')
+        .getAttribute('data-cat-id');
+    let used = document.getElementById('used-toggle').checked;
+    let pointVal = document.querySelector('input[name="point-val"]:checked')
+        ?.value;
+
+    let questionsQuery = questionRef
+        .where('master_category_id', '==', masterCatID)
+        .where('category_id', '==', catID)
+        .where('points', '==', parseFloat(pointVal))
+        .where('used', '==', used);
+
+    if (masterCatID && catID && catID != 'false' && pointVal) {
+        let questionData = [];
+        questionsQuery.get().then((snapshot) => {
+            snapshot.forEach((question) => {
+                questionData.push([
+                    question.id,
+                    question.data().question,
+                    question.data().answer,
+                    question.data().multiple_choice,
+                ]);
+            });
+            let removeRows = [];
+            for (i = 0; i < QUESTION_TABLE.data.length; i++) {
+                removeRows.push(i);
+            }
+            QUESTION_TABLE.rows().remove(removeRows);
+
+            QUESTION_TABLE.insert({
+                data: questionData,
+            });
+        });
+    }
 }
 
 // Insert into sorted list from
