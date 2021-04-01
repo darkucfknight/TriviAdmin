@@ -68,10 +68,10 @@ body {
 
 /* || Bottom bar (mobile) */
 #show-chart-button {
-    color: #232323;
+    color: #5573f3;
 }
 #show-chart-button:hover {
-    color: #aaaaaa;
+    color: white;
 }
 
 /* || Filter bar */
